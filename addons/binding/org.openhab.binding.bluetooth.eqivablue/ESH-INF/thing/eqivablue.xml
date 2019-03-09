@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="bluetooth" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<thing-type id="eqiva_blue">
+		<supported-bridge-type-refs>
+			<bridge-type-ref id="bluez" />
+		</supported-bridge-type-refs>
+
+		<label>Eqiva Bluetooth Smart Radiator Thermostat </label>
+		<description>A bluetooth enabled radiator thermostat</description>
+		<category>RadiatorControl</category>
+
+		<channels>
+			<channel id="targetTemperature" typeId="targetTemperature" />
+			<channel id="ecoTemperature" typeId="targetTemperature" />
+			<channel id="comfortTemperature" typeId="targetTemperature" />
+			<channel id="setEcoAndComfortTemperature" typeId="trigger" />
+            <channel id="operatingMode" typeId="operatingMode" />
+            <channel id="presetTemperature" typeId="presetTemperature" />
+			<channel id="vacationMode" typeId="vacationMode" />
+			<channel id="vacationModeDateTime" typeId="vacationModeDateTime" />
+			<channel id="boostMode" typeId="boostMode" />
+			<channel id="daylightSavingTime" typeId="daylightSavingTime" />
+			<channel id="windowMode" typeId="windowMode" />
+			<channel id="windowModeTemperature" typeId="targetTemperature" />
+			<channel id="windowModeDuration" typeId="windowModeDuration" />
+			<channel id="deviceLock" typeId="deviceLock" />
+			<channel id="lowBattery" typeId="system.low-battery" />
+			<channel id="valveStatus" typeId="valveStatus" />
+			<channel id="rssi" typeId="rssi" />
+		</channels>
+
+		<properties>
+			<property name="vendor">eQ-3</property>
+			<property name="modelId">Eqiva Bluetooth Smart Radiator Thermostat</property>
+			<property name="protocol">Bluetooth</property>
+		</properties>
+
+		<config-description>
+			<parameter name="address" type="text">
+				<label>Address</label>
+				<description>Bluetooth address in XX:XX:XX:XX:XX:XX format</description>
+			</parameter>
+		</config-description>
+
+	</thing-type>
+
+	<channel-type id="targetTemperature">
+		<item-type>Number</item-type>
+		<label>Target Temperature</label>
+		<description>The temperature channel allows to set a temperature controlled by the thermostat</description>
+		<category>Heating</category>
+		<tags>
+			<tag>TargetTemperature</tag>
+		</tags>
+		<state min="5.0" max="29.5" step="0.5" pattern="%.lf °C" readOnly="false" />
+	</channel-type>
+
+	<channel-type id="operatingMode">
+		<item-type>String</item-type>
+		<label>Operating Mode</label>
+		<description>The operating mode channel allows to switch between automatic and manual mode</description>
+		<category>Switch</category>
+		<tags>
+			<tag>OperatingMode</tag>
+		</tags>
+		<state>
+			<options>
+				<option value="Manual">Manuell</option>
+				<option value="Scheduled">Zeitschaltuhr</option>
+			</options>
+		</state>
+	</channel-type>
+
+    <channel-type id="presetTemperature">
+        <item-type>String</item-type>
+        <label>Preset Temperature</label>
+        <description>The preset temperature channel allows to switch between different preset temperatures</description>
+        <category>Switch</category>
+        <tags>
+            <tag>PresetTemperature</tag>
+        </tags>
+        <state>
+            <options>
+                <option value="Off">Off</option>
+                <option value="Eco">Eco</option>
+                <option value="Comfort">Comfort</option>
+                <option value="On">On</option>
+                <option value="None"></option>
+            </options>
+        </state>
+    </channel-type>
+    
+	<channel-type id="vacationMode">
+		<item-type>Switch</item-type>
+		<label>Vacation Mode</label>
+		<description>The vacation mode channel allows to switch between normal and vacation mode</description>
+		<category>Switch</category>
+		<tags>
+			<tag>VacationMode</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="vacationModeDateTime">
+		<item-type>DateTime</item-type>
+		<label>Vacation Mode Date</label>
+		<description>The vacation mode channel allows to set vacation mode until given date and time</description>
+		<category>Time</category>
+		<tags>
+			<tag>VacationModeDateTime</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="boostMode">
+		<item-type>Switch</item-type>
+		<label>Boost Mode</label>
+		<description>The boost mode channel allows to switch between normal and boost mode</description>
+		<category>Switch</category>
+		<tags>
+			<tag>BoostMode</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="daylightSavingTime">
+		<item-type>Switch</item-type>
+		<label>Daylight Saving Time</label>
+		<description>The DST mode channel indicates if currently daylight saving time is active or not</description>
+		<category>Switch</category>
+		<tags>
+			<tag>DaylightSavingTime</tag>
+		</tags>
+		<state readOnly="true" />
+	</channel-type>
+
+	<channel-type id="windowMode">
+		<item-type>Switch</item-type>
+		<label>Window Mode</label>
+		<description>The window mode channel allows to activate or deactivate the open window detection mechanism</description>
+		<category>Switch</category>
+		<tags>
+			<tag>WindowMode</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="windowModeDuration">
+		<item-type>Number</item-type>
+		<label>Window Mode Duration</label>
+		<description>The window mode duration channel defines for how long the window mode temperature will stay valid</description>
+		<category>Time</category>
+		<tags>
+			<tag>VacationModeDuration</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="deviceLock">
+		<item-type>Switch</item-type>
+		<label>Device Lock</label>
+		<description>The device lock channel allows to lock and unlock the manual operation of the device</description>
+		<category>Switch</category>
+		<tags>
+			<tag>DeviceLock</tag>
+		</tags>
+	</channel-type>
+
+	<channel-type id="valveStatus">
+		<item-type>Number</item-type>
+		<label>Current Valve Status</label>
+		<description>The valve status channel reports the current opening status of the valve</description>
+		<category>Pressure</category>
+		<tags>
+			<tag>ValveStatus</tag>
+		</tags>
+        <state min="0" max="100" step="1" readOnly="true" />
+	</channel-type>
+
+</thing:thing-descriptions>
