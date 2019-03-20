@@ -11,7 +11,7 @@
 
   <artifactId>org.openhab.binding.bluetooth.eqivablue</artifactId>
 
-  <name>openHAB Add-ons :: Bundles :: Bluetooth :: EqivaBlue Binding </name>
+  <name>openHAB Add-ons :: Bundles :: EqivaBlue Bluetooth Binding </name>
 
   <dependencies>
     <dependency>
