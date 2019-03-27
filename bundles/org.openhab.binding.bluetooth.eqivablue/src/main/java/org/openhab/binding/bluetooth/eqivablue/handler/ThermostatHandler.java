@@ -15,6 +15,7 @@ package org.openhab.binding.bluetooth.eqivablue.handler;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -43,20 +44,22 @@ import org.slf4j.LoggerFactory;
  * The {@link EqivaBlueHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
- * @author Frank Heister
+ * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class ThermostatHandler extends ConnectedBluetoothHandler implements ThermostatUpdateListener {
 
     private final Logger logger = LoggerFactory.getLogger(ThermostatHandler.class);
 
     private ThermostatContext thermostatContext;
-    private DeviceConnection deviceConnection = null;
+    private DeviceConnection deviceConnection;
     private float ecoPresetTemperature;
     private float comfortPresetTemperature;
 
     public ThermostatHandler(Thing thing) {
         super(thing);
         deviceConnection = new DeviceConnection();
+        thermostatContext = new ThermostatContext(this, device);
     }
 
     @Override
@@ -64,7 +67,6 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
         super.initialize();
         ecoPresetTemperature = 17.0f;
         comfortPresetTemperature = 21.0f;
-        thermostatContext = new ThermostatContext(this, device);
         deviceConnection.initialize(thermostatContext);
     }
 

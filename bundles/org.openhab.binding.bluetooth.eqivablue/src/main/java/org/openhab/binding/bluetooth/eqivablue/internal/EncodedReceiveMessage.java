@@ -37,10 +37,11 @@ public class EncodedReceiveMessage {
     private boolean boostModeIsActive;
     private boolean daylightSavingTimeIsActive;
     private boolean userLockIsActive;
-    private boolean unknownMode;
     private boolean batteryLevelIsLow;
     private int valveState;
     private float targetTemperature;
+    @SuppressWarnings("unused")
+    private boolean unknownMode;
 
     private LocalDateTime vacationDateTime;
     private Map<DayOfWeek, List<ScheduleEntry>> timeSchedule = new HashMap<DayOfWeek, List<ScheduleEntry>>();

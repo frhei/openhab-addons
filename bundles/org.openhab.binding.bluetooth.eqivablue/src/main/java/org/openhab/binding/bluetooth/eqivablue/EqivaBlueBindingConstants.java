@@ -12,6 +12,7 @@
  */
 package org.openhab.binding.bluetooth.eqivablue;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.openhab.binding.bluetooth.BluetoothBindingConstants;
 
@@ -21,6 +22,7 @@ import org.openhab.binding.bluetooth.BluetoothBindingConstants;
  *
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class EqivaBlueBindingConstants {
 
     // List of all Thing Type UIDs
