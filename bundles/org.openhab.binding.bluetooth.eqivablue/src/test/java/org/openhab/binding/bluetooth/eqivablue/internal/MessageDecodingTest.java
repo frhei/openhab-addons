@@ -12,25 +12,22 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.internal;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.openhab.binding.bluetooth.BluetoothCharacteristic;
 
 /**
- * Tests cases EqivaBlueStatus
+ * Tests cases EncodedReceiveMessage
  *
  * @author Jan N. Klug - Initial contribution
  */
-public class EqivaBlueStatusTest {
+public class MessageDecodingTest {
 
     @Mock
-    private BluetoothCharacteristic characteristic;
+    private ThermostatUpdateListener listener;
 
     @Before
     public void setUp() {
@@ -38,13 +35,14 @@ public class EqivaBlueStatusTest {
     }
 
     @Test
-    public void checkWithFadingWithoutHold() {
-        when(characteristic.getValue()).thenReturn(new int[] { 0x02, 0x01, 0x00, 0x00, 0xff, 0x1e });
+    public void checkSimpleUpdateMessage() {
 
-        EqivaBlueStatus status = EqivaBlueStatus.createFrom(characteristic);
+        EncodedReceiveMessage message = new EncodedReceiveMessage(new int[] { 0x02, 0x01, 0x00, 0x00, 0xff, 0x1e },
+                listener);
+        message.decodeAndNotify();
 
-        assertThat(status.getOperatingMode(), is(OperatingMode.Scheduled));
-        assertThat(status.getTargetTemperature(), is(15.0F));
+        verify(listener, times(1)).onOperationModeUpdated(OperatingMode.Scheduled);
+        verify(listener, times(1)).onTargetTemperatureUpdated(15.0f);
     }
 
 }

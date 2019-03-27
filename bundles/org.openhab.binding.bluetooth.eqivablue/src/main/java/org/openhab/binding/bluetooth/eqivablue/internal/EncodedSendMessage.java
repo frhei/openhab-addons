@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Frank Heister - Initial contribution
  */
-public class EqivaBlueCommand {
-    private final Logger logger = LoggerFactory.getLogger(EqivaBlueCommand.class);
+public class EncodedSendMessage {
+    private final Logger logger = LoggerFactory.getLogger(EncodedSendMessage.class);
     private List<Integer> sequence = new ArrayList<Integer>();
     private final static int COMMAND_SET_DATETIME = 0x03;
     private final static int COMMAND_SET_ECO_AND_COMFORT_TEMPERATURE = 0x11;
@@ -42,13 +42,13 @@ public class EqivaBlueCommand {
     private final static int PRIMITIVE_BOOST_MODE_OFF = 0x00;
 
     // query status is done by updating the time on device
-    public static EqivaBlueCommand queryStatus() {
+    public static EncodedSendMessage queryStatus() {
         return updateCurrentTime();
     }
 
-    public static EqivaBlueCommand updateCurrentTime() {
+    public static EncodedSendMessage updateCurrentTime() {
         LocalDateTime now = LocalDateTime.now();
-        EqivaBlueCommand command = new EqivaBlueCommand();
+        EncodedSendMessage command = new EncodedSendMessage();
         command.sequence.add(COMMAND_SET_DATETIME);
         command.sequence.add(now.getYear() % 100);
         command.sequence.add(now.getMonthValue());
@@ -59,38 +59,38 @@ public class EqivaBlueCommand {
         return command;
     }
 
-    public static EqivaBlueCommand setTargetTemperature(float temperature) {
-        EqivaBlueCommand command = new EqivaBlueCommand();
+    public static EncodedSendMessage setTargetTemperature(float temperature) {
+        EncodedSendMessage command = new EncodedSendMessage();
         command.sequence.add(COMMAND_SET_TARGET_TEMPERATURE);
         command.sequence.add(Math.round(temperature * 2));
         return command;
     }
 
-    public static EqivaBlueCommand setEcoAndComfortTemperature(float comfortTemperature, float ecoTemperature) {
-        EqivaBlueCommand command = new EqivaBlueCommand();
+    public static EncodedSendMessage setEcoAndComfortTemperature(float comfortTemperature, float ecoTemperature) {
+        EncodedSendMessage command = new EncodedSendMessage();
         command.sequence.add(COMMAND_SET_ECO_AND_COMFORT_TEMPERATURE);
         command.sequence.add(Math.round(comfortTemperature * 2));
         command.sequence.add(Math.round(ecoTemperature * 2));
         return command;
     }
 
-    public static EqivaBlueCommand setBoostMode(boolean boostMode) {
-        EqivaBlueCommand command = new EqivaBlueCommand();
+    public static EncodedSendMessage setBoostMode(boolean boostMode) {
+        EncodedSendMessage command = new EncodedSendMessage();
         command.sequence.add(COMMAND_SET_BOOST_MODE);
         command.sequence.add(boostMode ? PRIMITIVE_BOOST_MODE_ON : PRIMITIVE_BOOST_MODE_OFF);
         return command;
     }
 
-    public static EqivaBlueCommand setOperatingModeMode(OperatingMode operatingMode) {
-        EqivaBlueCommand command = null;
+    public static EncodedSendMessage setOperatingModeMode(OperatingMode operatingMode) {
+        EncodedSendMessage command = null;
         switch (operatingMode) {
             case Manual:
-                command = new EqivaBlueCommand();
+                command = new EncodedSendMessage();
                 command.sequence.add(COMMAND_SET_OPERATING_MODE);
                 command.sequence.add(PRIMITIVE_OPERATING_MODE_MANUAL);
                 break;
             case Scheduled:
-                command = new EqivaBlueCommand();
+                command = new EncodedSendMessage();
                 command.sequence.add(COMMAND_SET_OPERATING_MODE);
                 command.sequence.add(PRIMITIVE_OPERATING_MODE_SCHEDULED);
                 break;
@@ -100,21 +100,21 @@ public class EqivaBlueCommand {
         return command;
     }
 
-    public static EqivaBlueCommand setPresetTemperature(PresetTemperature presetTemperature) {
-        EqivaBlueCommand command = null;
+    public static EncodedSendMessage setPresetTemperature(PresetTemperature presetTemperature) {
+        EncodedSendMessage command = null;
         switch (presetTemperature) {
             case On:
-                command = EqivaBlueCommand.setTargetTemperature(EqivaBlueBindingConstants.ALWAYS_ON_TEMPERATURE);
+                command = EncodedSendMessage.setTargetTemperature(EqivaBlueBindingConstants.ALWAYS_ON_TEMPERATURE);
                 break;
             case Off:
-                command = EqivaBlueCommand.setTargetTemperature(EqivaBlueBindingConstants.ALWAYS_OFF_TEMPERATURE);
+                command = EncodedSendMessage.setTargetTemperature(EqivaBlueBindingConstants.ALWAYS_OFF_TEMPERATURE);
                 break;
             case Eco:
-                command = new EqivaBlueCommand();
+                command = new EncodedSendMessage();
                 command.sequence.add(COMMAND_SWITCH_TO_ECO_TEMPERATURE);
                 break;
             case Comfort:
-                command = new EqivaBlueCommand();
+                command = new EncodedSendMessage();
                 command.sequence.add(COMMAND_SWITCH_TO_COMFORT_TEMPERATURE);
                 break;
             default:
