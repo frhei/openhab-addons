@@ -164,7 +164,8 @@ public class EncodedReceiveMessage {
         targetTemperature = (float) temperatureByte / 2;
 
         if (vacationModeIsActive) {
-            vacationDateTime = LocalDateTime.of(value[6], value[8], value[5], (value[7] / 2), (value[7] % 2) * 30);
+            vacationDateTime = LocalDateTime.of(2000 + value[6], value[7], value[5], (value[8] / 2),
+                    (value[8] % 2) * 30);
         } else {
             vacationDateTime = LocalDateTime.MAX;
         }

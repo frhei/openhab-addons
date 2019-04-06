@@ -17,9 +17,6 @@ import java.time.LocalDateTime;
 import org.eclipse.jdt.annotation.NonNull;
 
 /**
- * The {@link ThermostatUpdateListener} is responsible for handling commands, which are
- * sent to one of the channels.
- *
  * @author Frank Heister - Initial contribution
  */
 public interface ThermostatUpdateListener {

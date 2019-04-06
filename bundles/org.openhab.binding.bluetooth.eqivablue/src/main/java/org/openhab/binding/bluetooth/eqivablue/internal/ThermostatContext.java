@@ -20,9 +20,6 @@ import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatHandler;
 
 /**
- * The {@link ThermostatContext} is responsible for handling commands, which are
- * sent to one of the channels.
- *
  * @author Frank Heister - Initial contribution
  */
 public class ThermostatContext {

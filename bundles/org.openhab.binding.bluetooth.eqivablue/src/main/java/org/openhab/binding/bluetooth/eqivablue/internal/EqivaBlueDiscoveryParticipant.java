@@ -31,10 +31,7 @@ import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * This discovery participant is able to recognize EqivaBlue devices and create discovery results for them.
- *
  * @author Frank Heister - Initial contribution
- *
  */
 @Component(immediate = true)
 public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticipant {
