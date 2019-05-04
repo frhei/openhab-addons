@@ -129,4 +129,7 @@ public class EncodedSendMessage {
         device.writeCharacteristic(characteristic);
     }
 
+    public int[] getEncodedContent() {
+        return sequence.stream().mapToInt(Integer::valueOf).toArray();
+    }
 }

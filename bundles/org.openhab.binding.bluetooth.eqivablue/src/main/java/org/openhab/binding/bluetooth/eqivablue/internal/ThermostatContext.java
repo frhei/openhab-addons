@@ -12,12 +12,14 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.internal;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
@@ -25,27 +27,46 @@ import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatHandler;
 public class ThermostatContext {
 
     private static final String EQ3_THERMOSTAT_THREADPOOL_NAME = "eq3thermostat";
+    private static final long CONNECTION_KEEPUP_INTERVAL_IN_MILLISECONDS = 60000;
+    private static final long MESSAGE_SENT_CONFIRMATION_TIMEOUT_IN_MILLISECONDS = 10000;
+    private final Logger logger = LoggerFactory.getLogger(ThermostatContext.class);
     private ScheduledExecutorService executorService;
     private String name;
-    private BluetoothDevice bluetoothDevice;
+    private Future<?> sendJob = null;
 
     public String getName() {
         return name;
     }
 
-    public ScheduledExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public BluetoothDevice getBluetoothDevice() {
-        return bluetoothDevice;
-    }
-
-    public ThermostatContext(ThermostatHandler theThermostatHandler, BluetoothDevice theBluetoothDevice) {
+    public ThermostatContext(ThermostatHandler theThermostatHandler) {
         Thing thermostat = theThermostatHandler.getThing();
         name = thermostat.getLabel();
         executorService = ThreadPoolManager.getScheduledPool(EQ3_THERMOSTAT_THREADPOOL_NAME);
-        bluetoothDevice = theBluetoothDevice;
+    }
+
+    public void dispose() {
+        cancelSendJob();
+    }
+
+    public void startSendJob(Runnable task) {
+        sendJob = executorService.submit(task);
+        logger.debug("SendJob started for {}", name);
+    }
+
+    public void cancelSendJob() {
+        if ((sendJob != null) && (sendJob.isDone() == false)) {
+            sendJob.cancel(true);
+            sendJob = null;
+            logger.debug("SendJob canceled for {}", name);
+        }
+    }
+
+    public long getMessageSentConfirmationTimeoutInMilliseconds() {
+        return MESSAGE_SENT_CONFIRMATION_TIMEOUT_IN_MILLISECONDS;
+    }
+
+    public long getConnectionKeepupIntervalInMilliseconds() {
+        return CONNECTION_KEEPUP_INTERVAL_IN_MILLISECONDS;
     }
 
 }

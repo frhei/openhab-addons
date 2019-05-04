@@ -34,6 +34,7 @@ import org.openhab.binding.bluetooth.eqivablue.internal.DeviceConnection;
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedSendMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
+import org.openhab.binding.bluetooth.eqivablue.internal.SendChannel;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatContext;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
 import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
@@ -53,13 +54,15 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
 
     private ThermostatContext thermostatContext;
     private DeviceConnection deviceConnection;
+    private SendChannel sendChannel;
     private float ecoPresetTemperature;
     private float comfortPresetTemperature;
 
     public ThermostatHandler(Thing thing) {
         super(thing);
-        deviceConnection = new DeviceConnection();
-        thermostatContext = new ThermostatContext(this, device);
+        thermostatContext = new ThermostatContext(this);
+        deviceConnection = new DeviceConnection(device, thermostatContext);
+        sendChannel = new SendChannel(thermostatContext, deviceConnection);
     }
 
     @Override
@@ -67,14 +70,13 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
         super.initialize();
         ecoPresetTemperature = 17.0f;
         comfortPresetTemperature = 21.0f;
-        deviceConnection.initialize(thermostatContext);
     }
 
     @Override
     public void dispose() {
-        deviceConnection.stopSending();
-        deviceConnection.dispose();
-        cleanUp();
+        sendChannel.stopSending();
+        deviceConnection.disableCommunicationToDevice();
+        thermostatContext.dispose();
         super.dispose();
     }
 
@@ -112,46 +114,46 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
     private void selectBoostMode(Command command) {
         boolean boostModeActivated = ((OnOffType) command) == OnOffType.ON;
         EncodedSendMessage messageToBeSent = EncodedSendMessage.setBoostMode(boostModeActivated);
-        deviceConnection.send(messageToBeSent);
+        sendChannel.send(messageToBeSent);
     }
 
     private void selectPresetTemperature(Command command) {
         PresetTemperature presetTemperature = PresetTemperature.valueOf(((StringType) command).toString());
         if (presetTemperature != PresetTemperature.None) {
             EncodedSendMessage messageToBeSent = EncodedSendMessage.setPresetTemperature(presetTemperature);
-            deviceConnection.send(messageToBeSent);
+            sendChannel.send(messageToBeSent);
         }
     }
 
     private void setOperatingMode(Command command) {
         OperatingMode operatingMode = OperatingMode.valueOf(((StringType) command).toString());
         EncodedSendMessage messageToBeSent = EncodedSendMessage.setOperatingModeMode(operatingMode);
-        deviceConnection.send(messageToBeSent);
+        sendChannel.send(messageToBeSent);
     }
 
     private void setComfortPresetTemperature(Command command) {
         comfortPresetTemperature = ((DecimalType) command).floatValue();
         EncodedSendMessage messageToBeSent = EncodedSendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
-        deviceConnection.send(messageToBeSent);
+        sendChannel.send(messageToBeSent);
     }
 
     private void setEcoPresetTemperature(Command command) {
         ecoPresetTemperature = ((DecimalType) command).floatValue();
         EncodedSendMessage messageToBeSent = EncodedSendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
-        deviceConnection.send(messageToBeSent);
+        sendChannel.send(messageToBeSent);
     }
 
     private void getStatusFromRemoteDevice() {
         EncodedSendMessage messageToBeSent = EncodedSendMessage.queryStatus();
-        deviceConnection.send(messageToBeSent);
+        sendChannel.send(messageToBeSent);
     }
 
     private void setTargetTemperature(Command command) {
         float targetTemperature = ((DecimalType) command).floatValue();
         EncodedSendMessage messageToBeSent = EncodedSendMessage.setTargetTemperature(targetTemperature);
-        deviceConnection.send(messageToBeSent);
+        sendChannel.send(messageToBeSent);
     }
 
     @Override
@@ -162,11 +164,11 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
         switch (connectionNotification.getConnectionState()) {
             case CONNECTED:
                 updateStatus(ThingStatus.ONLINE);
-                deviceConnection.startSending();
+                sendChannel.startSending();
                 break;
             case DISCONNECTED:
+                sendChannel.suspendSending();
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Device is not connected.");
-                deviceConnection.suspendSending();
                 break;
             default:
                 break;
@@ -175,7 +177,7 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
 
     @Override
     protected void updateStatusBasedOnRssi(boolean receivedSignal) {
-        // override status handling based on RSSI from parent class
+        // stop status handling based on RSSI from parent class by overriding method
         // just handle online/offline status based on Bluetooth connection state
     }
 
@@ -267,8 +269,4 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
         updateState(EqivaBlueBindingConstants.CHANNEL_VALVE_STATUS, new DecimalType(valveStatus));
     }
 
-    private void cleanUp() {
-        logger.debug("Cleaning up for {}", address);
-
-    }
 }

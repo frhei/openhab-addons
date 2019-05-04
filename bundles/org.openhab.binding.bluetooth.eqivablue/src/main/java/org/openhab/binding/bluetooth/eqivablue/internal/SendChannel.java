@@ -1,0 +1,117 @@
+/**
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
+package org.openhab.binding.bluetooth.eqivablue.internal;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author Frank Heister - Initial contribution
+ */
+public class SendChannel {
+    enum JobCommand {
+        Send,
+        Suspend,
+        Stop
+    }
+
+    private final Logger logger = LoggerFactory.getLogger(SendChannel.class);
+
+    private ThermostatContext context;
+    private DeviceConnection deviceConnection;
+    private BlockingQueue<EncodedSendMessage> sendQueue;
+    private BlockingQueue<JobCommand> jobCommandQueue;
+
+    public SendChannel(ThermostatContext theThermostatContext, DeviceConnection theDeviceConnection) {
+        context = theThermostatContext;
+        deviceConnection = theDeviceConnection;
+        sendQueue = new LinkedBlockingQueue<EncodedSendMessage>();
+        jobCommandQueue = new LinkedBlockingQueue<JobCommand>();
+        context.startSendJob(() -> sendInLoop());
+    }
+
+    public void startSending() {
+        logger.debug("{} starts sending messages", context.getName());
+        jobCommandQueue.add(JobCommand.Send);
+    }
+
+    public void suspendSending() {
+        logger.debug("{} suspends sending messages", context.getName());
+        jobCommandQueue.add(JobCommand.Suspend);
+    }
+
+    public void stopSending() {
+        logger.debug("{} stops sending messages", context.getName());
+        jobCommandQueue.add(JobCommand.Stop);
+    }
+
+    public void send(EncodedSendMessage messageToBeSent) {
+        sendQueue.add(messageToBeSent);
+    }
+
+    private void sendInLoop() {
+        boolean keepSending = true;
+        do {
+            JobCommand command = jobCommandQueue.poll();
+            switch (command) {
+                case Send:
+                    processSendQueue();
+                    jobCommandQueue.add(JobCommand.Send);
+                    break;
+                case Stop:
+                    keepSending = false;
+                    break;
+                case Suspend:
+                default:
+                    break;
+            }
+        } while (keepSending);
+    }
+
+    private void processSendQueue() {
+        try {
+            processNextMessage();
+        } catch (UnsupportedOperationException e) {
+            logger.debug("{} could not send message: {}", context.getName(), e.getMessage());
+        }
+    }
+
+    private void processNextMessage() {
+        EncodedSendMessage messageToBeSent = null;
+        messageToBeSent = pollNextMessageFromQueue();
+        deviceConnection.sendMessage(messageToBeSent);
+    }
+
+    private EncodedSendMessage pollNextMessageFromQueue() {
+        EncodedSendMessage message;
+        try {
+            message = pollNextMessageFromQueueWithTimeout();
+        } catch (InterruptedException e) {
+            message = getQueryMessageToKeepConnectionUp();
+        }
+        return message;
+    }
+
+    private EncodedSendMessage pollNextMessageFromQueueWithTimeout() throws InterruptedException {
+        return sendQueue.poll(context.getConnectionKeepupIntervalInMilliseconds(), TimeUnit.MILLISECONDS);
+    }
+
+    private EncodedSendMessage getQueryMessageToKeepConnectionUp() {
+        return EncodedSendMessage.queryStatus();
+    }
+
+}
