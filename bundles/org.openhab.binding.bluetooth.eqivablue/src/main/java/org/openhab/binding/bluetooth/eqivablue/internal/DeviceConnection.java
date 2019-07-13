@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import org.openhab.binding.bluetooth.BluetoothCharacteristic;
 import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
 import org.openhab.binding.bluetooth.BluetoothDevice;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +67,7 @@ public class DeviceConnection {
         }
     }
 
-    public void sendMessage(EncodedSendMessage messageToBeSent) {
+    public void sendMessage(SendMessage messageToBeSent) {
         keepSendingUntilConfirmationReceived(messageToBeSent);
     }
 
@@ -89,13 +90,13 @@ public class DeviceConnection {
         return (transmittingCharacteristic != null) && (receivingCharacteristic != null) && notificationsEnabled;
     }
 
-    private void keepSendingUntilConfirmationReceived(EncodedSendMessage messageToBeSent) {
+    private void keepSendingUntilConfirmationReceived(SendMessage messageToBeSent) {
         do {
             writeMessageContentToCharacteristic(messageToBeSent);
         } while (messageIsSent() == false);
     }
 
-    private void writeMessageContentToCharacteristic(EncodedSendMessage messageToBeSent)
+    private void writeMessageContentToCharacteristic(SendMessage messageToBeSent)
             throws UnsupportedOperationException {
         if (canSendAndReceive()) {
             int[] encodedContext = messageToBeSent.getEncodedContent();

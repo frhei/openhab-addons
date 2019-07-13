@@ -16,6 +16,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +34,13 @@ public class SendChannel {
 
     private ThermostatContext context;
     private DeviceConnection deviceConnection;
-    private BlockingQueue<EncodedSendMessage> sendQueue;
+    private BlockingQueue<SendMessage> sendQueue;
     private BlockingQueue<JobCommand> jobCommandQueue;
 
     public SendChannel(ThermostatContext theThermostatContext, DeviceConnection theDeviceConnection) {
         context = theThermostatContext;
         deviceConnection = theDeviceConnection;
-        sendQueue = new LinkedBlockingQueue<EncodedSendMessage>();
+        sendQueue = new LinkedBlockingQueue<SendMessage>();
         jobCommandQueue = new LinkedBlockingQueue<JobCommand>();
         context.startSendJob(() -> sendInLoop());
     }
@@ -59,14 +60,16 @@ public class SendChannel {
         jobCommandQueue.add(JobCommand.Stop);
     }
 
-    public void send(EncodedSendMessage messageToBeSent) {
+    public void send(SendMessage messageToBeSent) {
         sendQueue.add(messageToBeSent);
     }
 
     private void sendInLoop() {
         boolean keepSending = true;
+        logger.debug("{} enters send loop", context.getName());
         do {
             JobCommand command = jobCommandQueue.poll();
+            logger.debug("{} got {} command", context.getName(), command);
             switch (command) {
                 case Send:
                     processSendQueue();
@@ -91,27 +94,36 @@ public class SendChannel {
     }
 
     private void processNextMessage() {
-        EncodedSendMessage messageToBeSent = null;
-        messageToBeSent = pollNextMessageFromQueue();
+        SendMessage messageToBeSent = null;
+        messageToBeSent = determineMessageToBeSentNext();
         deviceConnection.sendMessage(messageToBeSent);
     }
 
-    private EncodedSendMessage pollNextMessageFromQueue() {
-        EncodedSendMessage message;
+    private SendMessage determineMessageToBeSentNext() {
+        SendMessage message = null;
+        message = pollNextMessageFromQueue();
+        if (message == null) {
+            message = getQueryMessageToKeepConnectionUp();
+        }
+        logger.debug("{}: message {} has been taken from send queue", context.getName(), message);
+        return message;
+    }
+
+    private SendMessage pollNextMessageFromQueue() {
+        SendMessage message = null;
         try {
             message = pollNextMessageFromQueueWithTimeout();
         } catch (InterruptedException e) {
-            message = getQueryMessageToKeepConnectionUp();
         }
         return message;
     }
 
-    private EncodedSendMessage pollNextMessageFromQueueWithTimeout() throws InterruptedException {
+    private SendMessage pollNextMessageFromQueueWithTimeout() throws InterruptedException {
         return sendQueue.poll(context.getConnectionKeepupIntervalInMilliseconds(), TimeUnit.MILLISECONDS);
     }
 
-    private EncodedSendMessage getQueryMessageToKeepConnectionUp() {
-        return EncodedSendMessage.queryStatus();
+    private SendMessage getQueryMessageToKeepConnectionUp() {
+        return SendMessage.queryStatus();
     }
 
 }

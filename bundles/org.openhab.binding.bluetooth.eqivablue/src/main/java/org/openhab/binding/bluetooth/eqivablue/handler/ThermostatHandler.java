@@ -31,12 +31,12 @@ import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
 import org.openhab.binding.bluetooth.ConnectedBluetoothHandler;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.openhab.binding.bluetooth.eqivablue.internal.DeviceConnection;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedSendMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
 import org.openhab.binding.bluetooth.eqivablue.internal.SendChannel;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatContext;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,46 +113,46 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
 
     private void selectBoostMode(Command command) {
         boolean boostModeActivated = ((OnOffType) command) == OnOffType.ON;
-        EncodedSendMessage messageToBeSent = EncodedSendMessage.setBoostMode(boostModeActivated);
+        SendMessage messageToBeSent = SendMessage.setBoostMode(boostModeActivated);
         sendChannel.send(messageToBeSent);
     }
 
     private void selectPresetTemperature(Command command) {
         PresetTemperature presetTemperature = PresetTemperature.valueOf(((StringType) command).toString());
         if (presetTemperature != PresetTemperature.None) {
-            EncodedSendMessage messageToBeSent = EncodedSendMessage.setPresetTemperature(presetTemperature);
+            SendMessage messageToBeSent = SendMessage.setPresetTemperature(presetTemperature);
             sendChannel.send(messageToBeSent);
         }
     }
 
     private void setOperatingMode(Command command) {
         OperatingMode operatingMode = OperatingMode.valueOf(((StringType) command).toString());
-        EncodedSendMessage messageToBeSent = EncodedSendMessage.setOperatingModeMode(operatingMode);
+        SendMessage messageToBeSent = SendMessage.setOperatingModeMode(operatingMode);
         sendChannel.send(messageToBeSent);
     }
 
     private void setComfortPresetTemperature(Command command) {
         comfortPresetTemperature = ((DecimalType) command).floatValue();
-        EncodedSendMessage messageToBeSent = EncodedSendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
+        SendMessage messageToBeSent = SendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
         sendChannel.send(messageToBeSent);
     }
 
     private void setEcoPresetTemperature(Command command) {
         ecoPresetTemperature = ((DecimalType) command).floatValue();
-        EncodedSendMessage messageToBeSent = EncodedSendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
+        SendMessage messageToBeSent = SendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
         sendChannel.send(messageToBeSent);
     }
 
     private void getStatusFromRemoteDevice() {
-        EncodedSendMessage messageToBeSent = EncodedSendMessage.queryStatus();
+        SendMessage messageToBeSent = SendMessage.queryStatus();
         sendChannel.send(messageToBeSent);
     }
 
     private void setTargetTemperature(Command command) {
         float targetTemperature = ((DecimalType) command).floatValue();
-        EncodedSendMessage messageToBeSent = EncodedSendMessage.setTargetTemperature(targetTemperature);
+        SendMessage messageToBeSent = SendMessage.setTargetTemperature(targetTemperature);
         sendChannel.send(messageToBeSent);
     }
 
