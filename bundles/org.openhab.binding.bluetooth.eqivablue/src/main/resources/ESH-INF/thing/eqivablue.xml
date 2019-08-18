@@ -6,6 +6,7 @@
 
 	<thing-type id="eqiva_blue">
 		<supported-bridge-type-refs>
+		    <bridge-type-ref id="bluegiga" />
 			<bridge-type-ref id="bluez" />
 		</supported-bridge-type-refs>
 
