@@ -167,7 +167,7 @@ public class EncodedReceiveMessage {
             vacationDateTime = LocalDateTime.of(2000 + value[6], value[7], value[5], (value[8] / 2),
                     (value[8] % 2) * 30);
         } else {
-            vacationDateTime = LocalDateTime.MAX;
+            vacationDateTime = LocalDateTime.of(1970, 1, 1, 0, 0);
         }
     }
 

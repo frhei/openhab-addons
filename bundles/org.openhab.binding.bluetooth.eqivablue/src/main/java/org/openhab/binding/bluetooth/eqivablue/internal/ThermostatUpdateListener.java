@@ -15,6 +15,7 @@ package org.openhab.binding.bluetooth.eqivablue.internal;
 import java.time.LocalDateTime;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 
 /**
  * @author Frank Heister - Initial contribution
@@ -39,4 +40,7 @@ public interface ThermostatUpdateListener {
     void onBatteryLevelIsLow(boolean batteryIsLow);
 
     void onValveStatusUpdated(int valveStatus);
+
+    void updateThingStatus(@NonNull ThingStatus status);
+
 }

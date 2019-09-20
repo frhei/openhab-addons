@@ -41,19 +41,19 @@ public class MessageDecodingTest {
                 // 1 1 0 1 0 1 0 1 => 0xd5
                 // 1 0 1 0 1 0 1 0 => 0xaa
                 { new int[] { 0x02, 0x01, 0x00, 0x00, 0xff, 0x1e }, OperatingMode.Scheduled, false, false, false, false,
-                        false, false, 0, 15.0f, LocalDateTime.MAX },
+                        false, false, 0, 15.0f, LocalDateTime.of(1970, 1, 1, 0, 0) },
                 { new int[] { 0x02, 0x01, 0x7f, 0x00, 0xff, 0x1e, 0x1e, 0x13, 0x03, 0x16 }, OperatingMode.Manual, true,
                         true, true, true, true, false, 0, 15.0f, LocalDateTime.of(2019, 03, 30, 11, 00) },
                 { new int[] { 0x02, 0x01, 0xd5, 0x00, 0xff, 0x1e }, OperatingMode.Manual, false, true, false, true,
-                        false, true, 0, 15.0f, LocalDateTime.MAX },
+                        false, true, 0, 15.0f, LocalDateTime.of(1970, 1, 1, 0, 0) },
                 { new int[] { 0x02, 0x01, 0xaa, 0x00, 0xff, 0x1e, 0x01, 0x13, 0x04, 0x2d }, OperatingMode.Scheduled,
                         true, false, true, false, true, true, 0, 15.0f, LocalDateTime.of(2019, 04, 01, 22, 30) },
 
                 // testing extremes for temperature and valve values
                 { new int[] { 0x02, 0x01, 0x00, 0x64, 0xff, 0x09 }, OperatingMode.Scheduled, false, false, false, false,
-                        false, false, 100, 4.5f, LocalDateTime.MAX },
+                        false, false, 100, 4.5f, LocalDateTime.of(1970, 1, 1, 0, 0) },
                 { new int[] { 0x02, 0x01, 0x00, 0x01, 0xff, 0x3C }, OperatingMode.Scheduled, false, false, false, false,
-                        false, false, 1, 30.0f, LocalDateTime.MAX } });
+                        false, false, 1, 30.0f, LocalDateTime.of(1970, 1, 1, 0, 0) } });
     };
 
     @Parameter(0)

@@ -20,6 +20,16 @@ import java.time.LocalDateTime;
 public class UpdateCurrentTimeMessage extends SendMessage {
 
     public UpdateCurrentTimeMessage() {
+    }
+
+    @Override
+    public int[] getEncodedContent() {
+        createSequenceWithMostCurrentTimeStamp();
+        return super.getEncodedContent();
+    }
+
+    private void createSequenceWithMostCurrentTimeStamp() {
+        sequence.clear();
         LocalDateTime now = LocalDateTime.now();
         sequence.add(COMMAND_SET_DATETIME);
         sequence.add(now.getYear() % 100);

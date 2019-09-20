@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -36,6 +37,8 @@ import org.osgi.service.component.annotations.Component;
 @Component(immediate = true)
 public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticipant {
 
+    private static final UUID UUID_EQIVA_BLUE_SERVICE = UUID.fromString("3e135142-654f-9090-134a-a6ff5bb77046");
+
     @Override
     public @NonNull Set<@NonNull ThingTypeUID> getSupportedThingTypeUIDs() {
         return Collections.singleton(EqivaBlueBindingConstants.THING_TYPE_EQIVA_BLUE);
@@ -43,7 +46,8 @@ public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticip
 
     @Override
     public @Nullable ThingUID getThingUID(@NonNull BluetoothDevice device) {
-        if (EqivaBlueBindingConstants.EQIVA_BLUE_NAME.equals(device.getName())) {
+        if ((EqivaBlueBindingConstants.EQIVA_BLUE_NAME.equals(device.getName()))
+                || (device.supportsService(UUID_EQIVA_BLUE_SERVICE))) {
             return new ThingUID(EqivaBlueBindingConstants.THING_TYPE_EQIVA_BLUE, device.getAdapter().getUID(),
                     device.getAddress().toString().toLowerCase().replace(":", ""));
         } else {

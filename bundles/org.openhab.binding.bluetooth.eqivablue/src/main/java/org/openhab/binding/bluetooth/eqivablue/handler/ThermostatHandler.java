@@ -23,21 +23,16 @@ import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.openhab.binding.bluetooth.BluetoothCharacteristic;
-import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
-import org.openhab.binding.bluetooth.ConnectedBluetoothHandler;
+import org.openhab.binding.bluetooth.BeaconBluetoothHandler;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.openhab.binding.bluetooth.eqivablue.internal.DeviceConnection;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
-import org.openhab.binding.bluetooth.eqivablue.internal.SendChannel;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatContext;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
-import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,34 +43,36 @@ import org.slf4j.LoggerFactory;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-public class ThermostatHandler extends ConnectedBluetoothHandler implements ThermostatUpdateListener {
+public class ThermostatHandler extends BeaconBluetoothHandler implements ThermostatUpdateListener {
 
     private final Logger logger = LoggerFactory.getLogger(ThermostatHandler.class);
 
+    @NonNullByDefault({} /* non-null if initialized */)
     private ThermostatContext thermostatContext;
+    @NonNullByDefault({} /* non-null if initialized */)
     private DeviceConnection deviceConnection;
-    private SendChannel sendChannel;
+    @NonNullByDefault({} /* non-null if initialized */)
     private float ecoPresetTemperature;
     private float comfortPresetTemperature;
 
     public ThermostatHandler(Thing thing) {
         super(thing);
-        thermostatContext = new ThermostatContext(this);
-        deviceConnection = new DeviceConnection(device, thermostatContext);
-        sendChannel = new SendChannel(thermostatContext, deviceConnection);
-    }
-
-    @Override
-    public void initialize() {
-        super.initialize();
         ecoPresetTemperature = 17.0f;
         comfortPresetTemperature = 21.0f;
     }
 
     @Override
+    public void initialize() {
+        super.initialize();
+        thermostatContext = new ThermostatContext(this);
+        deviceConnection = new DeviceConnection(device, this, thermostatContext);
+        device.addListener(deviceConnection);
+    }
+
+    @Override
     public void dispose() {
-        sendChannel.stopSending();
-        deviceConnection.disableCommunicationToDevice();
+        device.removeListener(deviceConnection);
+        deviceConnection.dispose();
         thermostatContext.dispose();
         super.dispose();
     }
@@ -114,94 +111,46 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
     private void selectBoostMode(Command command) {
         boolean boostModeActivated = ((OnOffType) command) == OnOffType.ON;
         SendMessage messageToBeSent = SendMessage.setBoostMode(boostModeActivated);
-        sendChannel.send(messageToBeSent);
+        deviceConnection.sendMessage(messageToBeSent);
     }
 
     private void selectPresetTemperature(Command command) {
         PresetTemperature presetTemperature = PresetTemperature.valueOf(((StringType) command).toString());
         if (presetTemperature != PresetTemperature.None) {
             SendMessage messageToBeSent = SendMessage.setPresetTemperature(presetTemperature);
-            sendChannel.send(messageToBeSent);
+            deviceConnection.sendMessage(messageToBeSent);
         }
     }
 
     private void setOperatingMode(Command command) {
         OperatingMode operatingMode = OperatingMode.valueOf(((StringType) command).toString());
         SendMessage messageToBeSent = SendMessage.setOperatingModeMode(operatingMode);
-        sendChannel.send(messageToBeSent);
+        deviceConnection.sendMessage(messageToBeSent);
     }
 
     private void setComfortPresetTemperature(Command command) {
         comfortPresetTemperature = ((DecimalType) command).floatValue();
         SendMessage messageToBeSent = SendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
-        sendChannel.send(messageToBeSent);
+        deviceConnection.sendMessage(messageToBeSent);
     }
 
     private void setEcoPresetTemperature(Command command) {
         ecoPresetTemperature = ((DecimalType) command).floatValue();
         SendMessage messageToBeSent = SendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
-        sendChannel.send(messageToBeSent);
+        deviceConnection.sendMessage(messageToBeSent);
     }
 
     private void getStatusFromRemoteDevice() {
         SendMessage messageToBeSent = SendMessage.queryStatus();
-        sendChannel.send(messageToBeSent);
+        deviceConnection.sendMessage(messageToBeSent);
     }
 
     private void setTargetTemperature(Command command) {
         float targetTemperature = ((DecimalType) command).floatValue();
         SendMessage messageToBeSent = SendMessage.setTargetTemperature(targetTemperature);
-        sendChannel.send(messageToBeSent);
-    }
-
-    @Override
-    public void onConnectionStateChange(BluetoothConnectionStatusNotification connectionNotification) {
-        super.onConnectionStateChange(connectionNotification);
-        logger.debug("Connection status of {} / {} has changed to {}", getThing().getLabel(), address,
-                connectionNotification.getConnectionState());
-        switch (connectionNotification.getConnectionState()) {
-            case CONNECTED:
-                updateStatus(ThingStatus.ONLINE);
-                sendChannel.startSending();
-                break;
-            case DISCONNECTED:
-                sendChannel.suspendSending();
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Device is not connected.");
-                break;
-            default:
-                break;
-        }
-    }
-
-    @Override
-    protected void updateStatusBasedOnRssi(boolean receivedSignal) {
-        // stop status handling based on RSSI from parent class by overriding method
-        // just handle online/offline status based on Bluetooth connection state
-    }
-
-    @Override
-    public void onServicesDiscovered() {
-        logger.debug("Services of {} discovered", address);
-
-        deviceConnection.notifyServiceDiscovery();
-        super.onServicesDiscovered();
-    }
-
-    @Override
-    public void onCharacteristicWriteComplete(BluetoothCharacteristic characteristic,
-            BluetoothCompletionStatus status) {
-        deviceConnection.notifySendCompletion(characteristic, status);
-        super.onCharacteristicWriteComplete(characteristic, status);
-    }
-
-    @Override
-    public void onCharacteristicUpdate(BluetoothCharacteristic characteristic) {
-        logger.debug("Characteristics update received for {}", address);
-
-        deviceConnection.receiveMessageAndNotifyListener(characteristic, this);
-        super.onCharacteristicUpdate(characteristic);
+        deviceConnection.sendMessage(messageToBeSent);
     }
 
     @Override
@@ -267,6 +216,12 @@ public class ThermostatHandler extends ConnectedBluetoothHandler implements Ther
     @Override
     public void onValveStatusUpdated(int valveStatus) {
         updateState(EqivaBlueBindingConstants.CHANNEL_VALVE_STATUS, new DecimalType(valveStatus));
+    }
+
+    @Override
+    public void updateThingStatus(ThingStatus status) {
+        updateStatus(status);
+
     }
 
 }

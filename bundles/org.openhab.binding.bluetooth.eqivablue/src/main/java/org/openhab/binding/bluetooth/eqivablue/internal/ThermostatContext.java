@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 public class ThermostatContext {
 
     private static final String EQ3_THERMOSTAT_THREADPOOL_NAME = "eq3thermostat";
-    private static final long CONNECTION_KEEPUP_INTERVAL_IN_MILLISECONDS = 60000;
-    private static final long MESSAGE_SENT_CONFIRMATION_TIMEOUT_IN_MILLISECONDS = 10000;
+    private static final long MESSAGE_SENT_CONFIRMATION_TIMEOUT_IN_MILLISECONDS = 1000;
+    private static final long MESSAGE_RESPONSE_RECEIVED_TIMEOUT_IN_MILLISECONDS = 1000;
     private final Logger logger = LoggerFactory.getLogger(ThermostatContext.class);
     private ScheduledExecutorService executorService;
     private String name;
@@ -65,8 +65,8 @@ public class ThermostatContext {
         return MESSAGE_SENT_CONFIRMATION_TIMEOUT_IN_MILLISECONDS;
     }
 
-    public long getConnectionKeepupIntervalInMilliseconds() {
-        return CONNECTION_KEEPUP_INTERVAL_IN_MILLISECONDS;
+    public long getMessageResponseReceivedTimeoutInMilliseconds() {
+        return MESSAGE_RESPONSE_RECEIVED_TIMEOUT_IN_MILLISECONDS;
     }
 
 }

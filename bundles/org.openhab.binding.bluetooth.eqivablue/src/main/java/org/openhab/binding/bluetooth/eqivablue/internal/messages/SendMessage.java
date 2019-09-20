@@ -18,14 +18,21 @@ import java.util.List;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 public class SendMessage {
-    private final Logger logger = LoggerFactory.getLogger(SendMessage.class);
+    public enum MessageStatus {
+        CREATED,
+        QUEUED,
+        SENT,
+        SENDING_CONFIRMED,
+        RESPONSE_RECEIVED
+    }
+
+    private MessageStatus status = MessageStatus.CREATED;
+
     protected List<Integer> sequence = new ArrayList<Integer>();
     protected final static int COMMAND_SET_DATETIME = 0x03;
     protected final static int COMMAND_SET_ECO_AND_COMFORT_TEMPERATURE = 0x11;
@@ -89,6 +96,35 @@ public class SendMessage {
 
     public int[] getEncodedContent() {
         return sequence.stream().mapToInt(Integer::valueOf).toArray();
+    }
+
+    public void setStatus(MessageStatus theStatus) {
+        synchronized (this) {
+            status = theStatus;
+            switch (status) {
+                case SENDING_CONFIRMED:
+                case RESPONSE_RECEIVED:
+                    notify();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public boolean hasStatus(MessageStatus theStatus) {
+        synchronized (this) {
+            return status == theStatus;
+        }
+    }
+
+    public void blockOrTimeOut(long timeout) {
+        try {
+            synchronized (this) {
+                wait(timeout);
+            }
+        } catch (InterruptedException e) {
+        }
     }
 
 }
