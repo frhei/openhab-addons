@@ -18,20 +18,25 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @RunWith(Parameterized.class)
 public class MessageDecodingTest {
-    @Parameters
+    @Parameters(name = "{index}:  {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
 
@@ -82,14 +87,24 @@ public class MessageDecodingTest {
     @Mock
     private ThermostatUpdateListener listener;
 
+    private final Logger logger = LoggerFactory.getLogger(MessageDecodingTest.class);
+
+    @Rule
+    public TestName name = new TestName();
+
     @Before
     public void setUp() {
+        logger.info("executing test: {}", name.getMethodName());
         initMocks(this);
+    }
+
+    @After
+    public void tearDown() {
+        logger.info("test completed: {}", name.getMethodName());
     }
 
     @Test
     public void checkSimpleUpdateMessage() {
-
         EncodedReceiveMessage message = new EncodedReceiveMessage(encodedMessage, listener);
         message.decodeAndNotify();
 

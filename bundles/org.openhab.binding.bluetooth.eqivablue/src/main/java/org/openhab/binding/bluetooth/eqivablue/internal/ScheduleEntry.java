@@ -19,6 +19,7 @@ import java.time.LocalTime;
  */
 public class ScheduleEntry {
 
+    @SuppressWarnings("unused")
     private int temperature;
     LocalTime startTime;
 
