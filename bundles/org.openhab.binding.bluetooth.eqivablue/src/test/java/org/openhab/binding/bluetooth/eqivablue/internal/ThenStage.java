@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.openhab.binding.bluetooth.eqivablue.communication.BluetoothDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
 import org.openhab.binding.bluetooth.eqivablue.communication.DeviceContext;
 import org.openhab.binding.bluetooth.eqivablue.communication.DeviceHandler;
 import org.openhab.binding.bluetooth.eqivablue.communication.DeviceStatus;
@@ -33,6 +34,10 @@ public class ThenStage extends Stage<ThenStage> {
 
     @ExpectedScenarioState
     private DeviceHandler deviceHandler;
+
+    @ExpectedScenarioState
+    @Mock
+    private CommandHandler commandHandler;
 
     public ThenStage no_connection_request_is_issued() {
         verify(deviceAdapter, never()).requestConnection();
@@ -71,6 +76,16 @@ public class ThenStage extends Stage<ThenStage> {
 
     public ThenStage the_scheduled_timer_is_cancelled() {
         assertThat(testContext.getLastScheduledFuture().isCancelled(), is(true));
+        return this;
+    }
+
+    public ThenStage communication_characteristics_are_acquired() {
+        verify(deviceAdapter, times(1)).getCharacteristics();
+        return this;
+    }
+
+    public ThenStage pending_commands_have_been_queried() {
+        verify(commandHandler, times(1)).areCommandsPending();
         return this;
     }
 }

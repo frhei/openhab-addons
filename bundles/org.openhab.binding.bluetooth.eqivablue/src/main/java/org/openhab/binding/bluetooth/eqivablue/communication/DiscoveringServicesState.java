@@ -12,9 +12,11 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.communication;
 
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Frank Heister - Initial contribution
@@ -25,6 +27,9 @@ public class DiscoveringServicesState extends OfflineState {
     private int numberOfSuccessiveDisconnects = 0;
     private int numberOfSuccessiveTimeouts = 0;
 
+    @Nullable
+    private ScheduledFuture<?> timeoutHandler;
+
     public DiscoveringServicesState(DeviceHandler theHandler) {
         super(theHandler);
     }
@@ -32,12 +37,22 @@ public class DiscoveringServicesState extends OfflineState {
     @Override
     protected void onEntry() {
         DeviceContext context = deviceHandler.getContext();
+        long timeout = context.getServiceDiscoveryTimeoutInMilliseconds();
+
+        timeoutHandler = context.getExecutorService().schedule(() -> serviceDiscoveryTimedOut(), timeout,
+                TimeUnit.MILLISECONDS);
+
         new RetryStrategy(deviceHandler::requestDiscoverServices, () -> {
             deviceHandler.setState(FailureState.class);
         }, context.getMaximalNumberOfRetries(), context).execute();
 
-        long timeout = context.getServiceDiscoveryTimeoutInMilliseconds();
-        context.getExecutorService().schedule(() -> serviceDiscoveryTimedOut(), timeout, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    protected void onExit() {
+        if (timeoutHandler != null) {
+            timeoutHandler.cancel(true);
+        }
     }
 
     private void serviceDiscoveryTimedOut() {
@@ -61,4 +76,10 @@ public class DiscoveringServicesState extends OfflineState {
             deviceHandler.setState(FailureState.class);
         }
     }
+
+    @Override
+    protected void notifyServicesDiscovered() {
+        deviceHandler.setState(RetrievingCharacteristicsState.class);
+    }
+
 }

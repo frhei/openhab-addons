@@ -18,39 +18,15 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-abstract class DeviceState {
+public abstract class OnlineState extends DeviceState {
 
-    protected DeviceHandler deviceHandler;
-
-    DeviceState(DeviceHandler theHandler) {
-        deviceHandler = theHandler;
+    public OnlineState(DeviceHandler theHandler) {
+        super(theHandler);
     }
 
+    @Override
     protected DeviceStatus getStatus() {
-        return DeviceStatus.UNDEFINED;
-    }
-
-    protected void indicateReceivedSignalStrength(int rssi) {
-
-    }
-
-    protected void indicateSignalLoss() {
-
-    }
-
-    protected void onEntry() {
-    }
-
-    protected void onExit() {
-    }
-
-    protected void notifyConnectionEstablished() {
-    }
-
-    protected void notifyConnectionClosed() {
-    }
-
-    protected void notifyServicesDiscovered() {
+        return DeviceStatus.ONLINE;
     }
 
 }

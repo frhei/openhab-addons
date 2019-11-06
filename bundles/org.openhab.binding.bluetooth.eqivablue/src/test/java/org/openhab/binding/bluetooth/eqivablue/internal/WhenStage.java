@@ -86,7 +86,7 @@ public class WhenStage extends Stage<WhenStage> {
         return this;
     }
 
-    public WhenStage service_discovery_requests_time_out_$_consecutive_t(int maxNumberOfTimeouts) {
+    public WhenStage service_discovery_requests_time_out_$_consecutive_times(int maxNumberOfTimeouts) {
         int actualNumberOfTimeouts = 0;
         while (actualNumberOfTimeouts < maxNumberOfTimeouts) {
             actualNumberOfTimeouts++;
@@ -110,6 +110,11 @@ public class WhenStage extends Stage<WhenStage> {
     public WhenStage time_elapses_by(long timeStep) {
         clock.elapse(Duration.ofMillis(timeStep));
         executorService.run();
+        return this;
+    }
+
+    public WhenStage services_are_discovered() {
+        deviceHandler.notifyServicesDiscovered();
         return this;
     }
 

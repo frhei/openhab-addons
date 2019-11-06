@@ -18,5 +18,6 @@ package org.openhab.binding.bluetooth.eqivablue.communication;
 public enum DeviceStatus {
     OFFLINE,
     FAILURE,
+    ONLINE,
     UNDEFINED
 }

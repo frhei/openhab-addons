@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.openhab.binding.bluetooth.eqivablue.communication.BluetoothDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
 import org.openhab.binding.bluetooth.eqivablue.communication.DeviceContext;
 import org.openhab.binding.bluetooth.eqivablue.communication.DeviceHandler;
 
@@ -38,6 +39,10 @@ public class GivenStage extends Stage<GivenStage> {
     @ProvidedScenarioState
     private TestContext testContext = new TestContext();
 
+    @ProvidedScenarioState
+    @Mock
+    private CommandHandler commandHandler;
+
     @BeforeScenario
     public void setUp() {
         long standardTimeoutinMilliSeconds = 12345L;
@@ -45,7 +50,7 @@ public class GivenStage extends Stage<GivenStage> {
         executorService.setClock(clock);
         Mockito.when(context.getExecutorService()).thenReturn(executorService);
         service_discovery_timeout_is(standardTimeoutinMilliSeconds);
-        deviceHandler = new DeviceHandler(deviceAdapter, context);
+        deviceHandler = new DeviceHandler(deviceAdapter, commandHandler, context);
     }
 
     @AfterScenario
@@ -84,6 +89,7 @@ public class GivenStage extends Stage<GivenStage> {
     }
 
     public GivenStage the_adapter_will_accept_service_discovery_requests() {
+        connection_request_timeout_is(Long.MAX_VALUE);
         Mockito.when(deviceAdapter.requestDiscoverServices()).thenReturn(true);
         return this;
     }
@@ -105,6 +111,26 @@ public class GivenStage extends Stage<GivenStage> {
 
     public GivenStage connection_request_timeout_is(long timeout) {
         Mockito.when(context.getConnectionRequestTimeoutInMilliseconds()).thenReturn(timeout);
+        return this;
+    }
+
+    public GivenStage the_communication_characteristics_will_be_detected() {
+        Mockito.when(deviceAdapter.getCharacteristics()).thenReturn(true);
+        return this;
+    }
+
+    public GivenStage the_communication_characteristics_will_not_be_detected() {
+        Mockito.when(deviceAdapter.getCharacteristics()).thenReturn(false);
+        return this;
+    }
+
+    public GivenStage commands_are_pending() {
+        Mockito.when(commandHandler.areCommandsPending()).thenReturn(true);
+        return this;
+    }
+
+    public GivenStage no_commands_are_pending() {
+        Mockito.when(commandHandler.areCommandsPending()).thenReturn(false);
         return this;
     }
 }

@@ -25,17 +25,23 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 public class DeviceHandler {
 
     private BluetoothDeviceAdapter deviceAdapter;
+    private CommandHandler commandHandler;
     private DeviceContext context;
     private Map<Type, DeviceState> states;
     private DeviceState currentState;
 
-    public DeviceHandler(BluetoothDeviceAdapter theDeviceAdapter, DeviceContext theContext) {
+    public DeviceHandler(BluetoothDeviceAdapter theDeviceAdapter, CommandHandler theCommandHandler,
+            DeviceContext theContext) {
         deviceAdapter = theDeviceAdapter;
+        commandHandler = theCommandHandler;
         context = theContext;
         states = new HashMap<Type, DeviceState>();
         states.put(NoSignalState.class, new NoSignalState(this));
         states.put(ConnectingForServiceDiscoveryState.class, new ConnectingForServiceDiscoveryState(this));
         states.put(DiscoveringServicesState.class, new DiscoveringServicesState(this));
+        states.put(RetrievingCharacteristicsState.class, new RetrievingCharacteristicsState(this));
+        states.put(WaitingForDisconnectState.class, new WaitingForDisconnectState(this));
+        states.put(TransmitCommandState.class, new TransmitCommandState(this));
         states.put(FailureState.class, new FailureState(this));
 
         currentState = states.get(NoSignalState.class);
@@ -83,8 +89,19 @@ public class DeviceHandler {
         return context;
     }
 
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
+    }
+
     public boolean requestDisconnect() {
         return deviceAdapter.requestDisconnect();
     }
 
+    public void notifyServicesDiscovered() {
+        currentState.notifyServicesDiscovered();
+    }
+
+    public boolean getCharacteristics() {
+        return deviceAdapter.getCharacteristics();
+    }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.openhab.binding.bluetooth.eqivablue.communication.DeviceStatus;
 
+import com.tngtech.jgiven.annotation.As;
 import com.tngtech.jgiven.junit5.JGivenExtension;
 import com.tngtech.jgiven.junit5.ScenarioTest;
 
@@ -15,8 +16,8 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
 
     @ParameterizedTest
     @CsvSource({ "5, 0, 1", "5, 1, 2", "5, 4, 5", "100, 99, 100" })
-    public void repetitive_connection_requests_upon_connection_request_rejection(int maxRequests, int rejectedRequests,
-            int actualRequests) {
+    @As("Connecting for service discovery: retries caused by rejects")
+    public void retries_caused_by_rejects(int maxRequests, int rejectedRequests, int actualRequests) {
         // @formatter:off
         given().maximum_number_of_rejected_connection_requests_is(maxRequests).
             and().the_adapter_will_reject_$_consecutive_connection_requests(rejectedRequests);
@@ -28,7 +29,8 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
 
     @ParameterizedTest
     @CsvSource({ "5", "6", "10" })
-    public void too_many_connection_request_rejections_result_in_failure(int maxRequests) {
+    @As("Connecting for service discovery: failure caused by too many rejects")
+    public void failure_caused_by_too_many_rejects(int maxRequests) {
         // @formatter:off
         given().maximum_number_of_rejected_connection_requests_is(maxRequests).
             and().the_adapter_will_reject_$_consecutive_connection_requests(maxRequests);
@@ -39,7 +41,8 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
     }
 
     @Test
-    public void when_connection_request_is_acknowledged_then_a_service_discovery_request_is_issued() {
+    @As("Connecting for service discovery: successful connection establishment")
+    public void succesful_connection_establishment() {
         // @formatter:off
         given().the_adapter_will_accept_connection_requests();
         when().a_connection_request_is_issued().
@@ -49,7 +52,8 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
     }
 
     @Test
-    public void connection_request_has_not_timed_out() {
+    @As("Connecting for service discovery: no timeout handling prior to timeout")
+    public void no_timeout_handling_prior_to_timeout() {
         // @formatter:off
         given().connection_request_timeout_is(15000L).
             and().the_adapter_will_accept_connection_requests();
@@ -60,25 +64,13 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
         // @formatter:on
     }
 
-    @Test
-    public void connection_request_has_timed_out_and_results_in_a_reconnect() {
+    @ParameterizedTest
+    @CsvSource({ "1, 1, 2", "5, 0, 1", "5, 1, 2", "5, 5, 6", "100, 100, 101" })
+    @As("Connecting for service discovery: retries caused by timeouts")
+    public void retries_caused_by_timeouts(int maxNumberOfTimeouts, int numberOfTimeouts, int actualRequests) {
         // @formatter:off
         given().connection_request_timeout_is(40000L).
-            and().maximum_number_of_timeouts_is(1).
-            and().the_adapter_will_accept_connection_requests();
-        when().a_connection_request_is_issued().
-            and().time_elapses_by(40001L);
-        then().$_connection_requests_are_issued(2).
-            and().device_status_is(DeviceStatus.OFFLINE);
-        // @formatter:on
-    }
-
-    @ParameterizedTest
-    @CsvSource({ "5, 0, 1", "5, 1, 2", "5, 5, 6", "100, 100, 101" })
-    public void when_connection_requests_petetively_time_out_then_connection_requests_are_issued_and_finally_succeed(
-            int maxNumberOfTimeouts, int numberOfTimeouts, int actualRequests) {
-        // @formatter:off
-        given().maximum_number_of_timeouts_is(maxNumberOfTimeouts).
+            and().maximum_number_of_timeouts_is(maxNumberOfTimeouts).
             and().the_adapter_will_accept_connection_requests();
         when().a_connection_request_is_issued().
             and().connection_requests_time_out_$_consecutive_times(numberOfTimeouts);
@@ -89,7 +81,8 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
 
     @ParameterizedTest
     @CsvSource({ "5", "6", "10" })
-    public void when_too_many_connection_request_time_out_then_this_results_in_failure(int maxNumberOfTimeouts) {
+    @As("Connecting for service discovery: failure caused by too many timeouts")
+    public void failure_caused_by_too_many_timeouts(int maxNumberOfTimeouts) {
         // @formatter:off
         given().the_adapter_will_accept_connection_requests().
             and().maximum_number_of_timeouts_is(maxNumberOfTimeouts);
@@ -101,6 +94,7 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
     }
 
     @Test
+    @As("Connecting for service discovery: timeout handling deactivated when connection is established")
     public void when_connection_request_is_acknowledged_then_the_connection_request_timer_gets_deactivated() {
         // @formatter:off
         given().the_adapter_will_accept_connection_requests();
@@ -111,7 +105,8 @@ public class DeviceHandlerConnectionRequestForServiceDiscoveryTests
     }
 
     @Test
-    public void when_failing_due_to_exceeding_rejections_then_the_connection_request_timer_gets_deactivated() {
+    @As("Connecting for service discovery: timeout handling deactivated when going into failure situation (too many rejects)")
+    public void timeout_handling_deactivated_when_going_into_failure_situation_too_many_rejects() {
         // @formatter:off
         given().maximum_number_of_rejected_connection_requests_is(5).
             and().the_adapter_will_reject_$_consecutive_connection_requests(5);

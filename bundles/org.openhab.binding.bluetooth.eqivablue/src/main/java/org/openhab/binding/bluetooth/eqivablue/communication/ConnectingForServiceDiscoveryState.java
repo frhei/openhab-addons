@@ -51,7 +51,6 @@ public class ConnectingForServiceDiscoveryState extends OfflineState {
         if (timeoutHandler != null) {
             timeoutHandler.cancel(true);
         }
-
     }
 
     private void connectionRequestTimedOut() {

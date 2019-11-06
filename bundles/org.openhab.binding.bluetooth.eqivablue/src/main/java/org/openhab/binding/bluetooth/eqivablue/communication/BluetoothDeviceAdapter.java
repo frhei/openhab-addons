@@ -12,7 +12,10 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.communication;
 
+import java.util.UUID;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.BluetoothCharacteristic;
 import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
 import org.openhab.binding.bluetooth.BluetoothDescriptor;
@@ -27,8 +30,19 @@ import org.openhab.binding.bluetooth.notification.BluetoothScanNotification;
 @NonNullByDefault
 public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
 
+    private static final UUID UUID_EQIVA_BLUE_CONTROL_CHARACTERISTIC = UUID
+            .fromString("3fa4585a-ce4a-3bad-db4b-b8df8179ea09");
+    private static final UUID UUID_EQIVA_BLUE_NOTIFICATION_CHARACTERISTIC = UUID
+            .fromString("d0e8434d-cd29-0996-af41-6c90f4e0eb2a");
+
     private BluetoothDevice device;
     private DeviceHandler deviceHandler;
+
+    @Nullable
+    private BluetoothCharacteristic controlCharacteristic;
+
+    @Nullable
+    private BluetoothCharacteristic notificationCharacteristic;
 
     public BluetoothDeviceAdapter(BluetoothDevice theBluetoothDevice, DeviceHandler theDeviceHandler) {
         device = theBluetoothDevice;
@@ -54,7 +68,6 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
 
     @Override
     public void onServicesDiscovered() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -97,6 +110,12 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
 
     public boolean requestDisconnect() {
         return device.disconnect();
+    }
+
+    public boolean getCharacteristics() {
+        controlCharacteristic = device.getCharacteristic(UUID_EQIVA_BLUE_CONTROL_CHARACTERISTIC);
+        notificationCharacteristic = device.getCharacteristic(UUID_EQIVA_BLUE_NOTIFICATION_CHARACTERISTIC);
+        return (controlCharacteristic != null) && (notificationCharacteristic != null);
     }
 
 }
