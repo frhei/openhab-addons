@@ -10,30 +10,30 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication;
+package org.openhab.binding.bluetooth.eqivablue.communication.states;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-public class CommandHandler {
+class NoSignalState extends OfflineState {
 
-    public boolean areCommandsPending() {
-        // TODO Auto-generated method stub
-        return true;
+    NoSignalState(DeviceHandler theHandler) {
+        super(theHandler);
     }
 
-    public SendMessage peekCommand() {
-        // TODO Auto-generated method stub
-        return SendMessage.queryStatus();
+    @Override
+    void indicateSignalLoss() {
     }
 
-    public void popCommand() {
-        // TODO Auto-generated method stub
-
+    @Override
+    void indicateReceivedSignalStrength(int rssi) {
+        if (deviceHandler.characteristicsAreAvailable()) {
+            deviceHandler.setState(IdleState.class);
+        } else {
+            deviceHandler.setState(ConnectingForServiceDiscoveryState.class);
+        }
     }
-
 }

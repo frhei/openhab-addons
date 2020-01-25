@@ -21,6 +21,8 @@ import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
 import org.openhab.binding.bluetooth.BluetoothDescriptor;
 import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.BluetoothDeviceListener;
+import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.openhab.binding.bluetooth.notification.BluetoothScanNotification;
 
@@ -52,7 +54,6 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
     @Override
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -68,13 +69,11 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
 
     @Override
     public void onServicesDiscovered() {
-
     }
 
     @Override
     public void onCharacteristicReadComplete(BluetoothCharacteristic characteristic, BluetoothCompletionStatus status) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -87,13 +86,11 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
     @Override
     public void onCharacteristicUpdate(BluetoothCharacteristic characteristic) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onDescriptorUpdate(BluetoothDescriptor bluetoothDescriptor) {
         // TODO Auto-generated method stub
-
     }
 
     public boolean requestConnection() {
@@ -105,7 +102,6 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
     }
 
     public void requestCharacteristics() {
-
     }
 
     public boolean requestDisconnect() {
@@ -118,4 +114,17 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
         return (controlCharacteristic != null) && (notificationCharacteristic != null);
     }
 
+    public boolean characteristicsAreAvailable() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean writeCharacteristic(SendMessage theMessage) {
+        if (controlCharacteristic != null) {
+            controlCharacteristic.setValue(theMessage.getEncodedContent());
+            return device.writeCharacteristic(controlCharacteristic);
+        } else {
+            return false;
+        }
+    }
 }

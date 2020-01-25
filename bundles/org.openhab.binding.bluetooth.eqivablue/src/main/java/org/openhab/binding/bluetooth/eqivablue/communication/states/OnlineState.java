@@ -10,30 +10,24 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication;
+package org.openhab.binding.bluetooth.eqivablue.communication.states;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-public class CommandHandler {
+abstract class OnlineState extends DeviceState {
 
-    public boolean areCommandsPending() {
-        // TODO Auto-generated method stub
-        return true;
+    OnlineState(DeviceHandler theHandler) {
+        super(theHandler);
     }
 
-    public SendMessage peekCommand() {
-        // TODO Auto-generated method stub
-        return SendMessage.queryStatus();
-    }
-
-    public void popCommand() {
-        // TODO Auto-generated method stub
-
+    @Override
+    ThingStatus getStatus() {
+        return ThingStatus.ONLINE;
     }
 
 }

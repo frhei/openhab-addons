@@ -167,7 +167,7 @@ public class DeviceConnection implements BluetoothDeviceListener {
     @Override
     public void onServicesDiscovered() {
         logger.debug("Services of {} discovered", bluetoothDevice.getAddress());
-        if (canSendAndReceive() == false) {
+        if (!canSendAndReceive()) {
             retrieveCharacteristics();
         }
         thermostatContext.startSendJob(() -> sendAllQueuedMessagesAndThenDisconnect());
@@ -179,7 +179,7 @@ public class DeviceConnection implements BluetoothDeviceListener {
         if (receivingCharacteristic != null) {
             notificationsEnabled = bluetoothDevice.enableNotifications(receivingCharacteristic);
             logger.debug("Notifcations for {} {}", thermostatContext.getName(),
-                    (notificationsEnabled == true ? "enabled" : "disabled"));
+                    (notificationsEnabled ? "enabled" : "disabled"));
         }
     }
 

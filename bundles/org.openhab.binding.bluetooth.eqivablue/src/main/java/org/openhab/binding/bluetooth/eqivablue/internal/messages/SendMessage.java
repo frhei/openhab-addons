@@ -34,18 +34,18 @@ public class SendMessage {
     private MessageStatus status = MessageStatus.CREATED;
 
     protected List<Integer> sequence = new ArrayList<Integer>();
-    protected final static int COMMAND_SET_DATETIME = 0x03;
-    protected final static int COMMAND_SET_ECO_AND_COMFORT_TEMPERATURE = 0x11;
-    protected final static int COMMAND_SET_OPERATING_MODE = 0x40;
-    protected final static int COMMAND_SET_TARGET_TEMPERATURE = 0x41;
-    protected final static int COMMAND_SWITCH_TO_COMFORT_TEMPERATURE = 0x43;
-    protected final static int COMMAND_SWITCH_TO_ECO_TEMPERATURE = 0x44;
-    protected final static int COMMAND_SET_BOOST_MODE = 0x45;
+    protected static final int COMMAND_SET_DATETIME = 0x03;
+    protected static final int COMMAND_SET_ECO_AND_COMFORT_TEMPERATURE = 0x11;
+    protected static final int COMMAND_SET_OPERATING_MODE = 0x40;
+    protected static final int COMMAND_SET_TARGET_TEMPERATURE = 0x41;
+    protected static final int COMMAND_SWITCH_TO_COMFORT_TEMPERATURE = 0x43;
+    protected static final int COMMAND_SWITCH_TO_ECO_TEMPERATURE = 0x44;
+    protected static final int COMMAND_SET_BOOST_MODE = 0x45;
 
-    protected final static int PRIMITIVE_OPERATING_MODE_MANUAL = 0x40;
-    protected final static int PRIMITIVE_OPERATING_MODE_SCHEDULED = 0x00;
-    protected final static int PRIMITIVE_BOOST_MODE_ON = 0xFF;
-    protected final static int PRIMITIVE_BOOST_MODE_OFF = 0x00;
+    protected static final int PRIMITIVE_OPERATING_MODE_MANUAL = 0x40;
+    protected static final int PRIMITIVE_OPERATING_MODE_SCHEDULED = 0x00;
+    protected static final int PRIMITIVE_BOOST_MODE_ON = 0xFF;
+    protected static final int PRIMITIVE_BOOST_MODE_OFF = 0x00;
 
     // query status is done by updating the time on device
     public static SendMessage queryStatus() {

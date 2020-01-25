@@ -30,27 +30,27 @@ public class EqivaBlueBindingConstants {
             "eqiva_blue");
 
     // List of all Channel ids
-    public final static String CHANNEL_TARGET_TEMPERATURE = "targetTemperature";
-    public final static String CHANNEL_ECO_TEMPERATURE = "ecoTemperature";
-    public final static String CHANNEL_COMFORT_TEMPERATURE = "comfortTemperature";
-    public final static String CHANNEL_SET_ECO_AND_COMFORT_TEMPERATURE = "setEcoAndcomfortTemperature";
-    public final static String CHANNEL_OPERATING_MODE = "operatingMode";
-    public final static String CHANNEL_PRESET_TEMPERATURE = "presetTemperature";
-    public final static String CHANNEL_VACATION_MODE = "vacationMode";
-    public final static String CHANNEL_VACATION_MODE_DATE_TIME = "vacationModeDateTime";
-    public final static String CHANNEL_BOOST_MODE = "boostMode";
-    public final static String CHANNEL_DAYLIGHT_SAVING_TIME = "daylightSavingTime";
-    public final static String CHANNEL_WINDOW_MODE = "windowMode";
-    public final static String CHANNEL_WINDOW_MODE_TEMPERATURE = "windowModeTemperature";
-    public final static String CHANNEL_WINDOW_MODE_DURATION = "windowModeDuration";
-    public final static String CHANNEL_DEVICE_LOCK = "deviceLock";
-    public final static String CHANNEL_LOW_BATTERY = "lowBattery";
-    public final static String CHANNEL_VALVE_STATUS = "valveStatus";
-    public final static String CHANNEL_RSSI = "rssi";
+    public static final String CHANNEL_TARGET_TEMPERATURE = "targetTemperature";
+    public static final String CHANNEL_ECO_TEMPERATURE = "ecoTemperature";
+    public static final String CHANNEL_COMFORT_TEMPERATURE = "comfortTemperature";
+    public static final String CHANNEL_SET_ECO_AND_COMFORT_TEMPERATURE = "setEcoAndcomfortTemperature";
+    public static final String CHANNEL_OPERATING_MODE = "operatingMode";
+    public static final String CHANNEL_PRESET_TEMPERATURE = "presetTemperature";
+    public static final String CHANNEL_VACATION_MODE = "vacationMode";
+    public static final String CHANNEL_VACATION_MODE_DATE_TIME = "vacationModeDateTime";
+    public static final String CHANNEL_BOOST_MODE = "boostMode";
+    public static final String CHANNEL_DAYLIGHT_SAVING_TIME = "daylightSavingTime";
+    public static final String CHANNEL_WINDOW_MODE = "windowMode";
+    public static final String CHANNEL_WINDOW_MODE_TEMPERATURE = "windowModeTemperature";
+    public static final String CHANNEL_WINDOW_MODE_DURATION = "windowModeDuration";
+    public static final String CHANNEL_DEVICE_LOCK = "deviceLock";
+    public static final String CHANNEL_LOW_BATTERY = "lowBattery";
+    public static final String CHANNEL_VALVE_STATUS = "valveStatus";
+    public static final String CHANNEL_RSSI = "rssi";
 
-    public final static String EQIVA_BLUE_NAME = "CC-RT-BLE";
+    public static final String EQIVA_BLUE_NAME = "CC-RT-BLE";
 
-    public final static float ALWAYS_OFF_TEMPERATURE = 4.5f;
-    public final static float ALWAYS_ON_TEMPERATURE = 30.0f;
+    public static final float ALWAYS_OFF_TEMPERATURE = 4.5f;
+    public static final float ALWAYS_ON_TEMPERATURE = 30.0f;
 
 }

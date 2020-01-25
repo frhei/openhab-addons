@@ -54,7 +54,7 @@ public class ThermostatContext {
     }
 
     public void cancelSendJob() {
-        if ((sendJob != null) && (sendJob.isDone() == false)) {
+        if ((sendJob != null) && (!sendJob.isDone())) {
             sendJob.cancel(true);
             sendJob = null;
             logger.debug("SendJob canceled for {}", name);
