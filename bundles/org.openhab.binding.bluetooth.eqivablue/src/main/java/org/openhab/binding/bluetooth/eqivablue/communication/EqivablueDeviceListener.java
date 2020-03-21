@@ -7,6 +7,8 @@ public interface EqivablueDeviceListener {
 
     void notifyReceivedSignalStrength(int rssi);
 
+    void notifyServicesDiscovered();
+
     void notifyConnectionEstablished();
 
     void notifyConnectionClosed();

@@ -18,11 +18,13 @@ import java.util.UUID;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.bluetooth.BluetoothAddress;
 import org.openhab.binding.bluetooth.BluetoothCharacteristic;
 import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
 import org.openhab.binding.bluetooth.BluetoothDescriptor;
 import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.BluetoothDeviceListener;
+import org.openhab.binding.bluetooth.BluetoothService;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.Trace;
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
@@ -34,6 +36,8 @@ import org.openhab.binding.bluetooth.notification.BluetoothScanNotification;
  */
 @NonNullByDefault
 public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
+
+    private static final UUID UUID_EQIVA_BLUE_SERVICE = UUID.fromString("3e135142-654f-9090-134a-a6ff5bb77046");
 
     private static final UUID UUID_EQIVA_BLUE_CONTROL_CHARACTERISTIC = UUID
             .fromString("3fa4585a-ce4a-3bad-db4b-b8df8179ea09");
@@ -98,6 +102,12 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     @Override
     @Trace
     public void onServicesDiscovered() {
+        BluetoothService service = device.getServices(UUID_EQIVA_BLUE_SERVICE);
+        if ((service != null) && (service.getHandleStart() != 0) && (service.getHandleEnd() != 0)) {
+            deviceListeners.forEach((listener) -> {
+                listener.notifyServicesDiscovered();
+            });
+        }
     }
 
     @Override
@@ -177,5 +187,9 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
         } else {
             return false;
         }
+    }
+
+    public BluetoothAddress getAddress() {
+        return device.getAddress();
     }
 }

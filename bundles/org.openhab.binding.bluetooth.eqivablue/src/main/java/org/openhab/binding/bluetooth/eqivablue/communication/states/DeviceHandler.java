@@ -24,12 +24,16 @@ import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceList
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
 public class DeviceHandler implements EqivablueDeviceListener {
+
+    private final Logger logger = LoggerFactory.getLogger(DeviceHandler.class);
 
     private EqivablueDeviceAdapter deviceAdapter;
     private CommandHandler commandHandler;
@@ -71,7 +75,8 @@ public class DeviceHandler implements EqivablueDeviceListener {
 
     @Trace
     public void setState(Type type) {
-        // logger.debug("{} -> {}", currentState.getClass().getTypeName(), type.getTypeName());
+        logger.debug("{}: {} -> {}", deviceAdapter.getAddress(), currentState.getClass().getTypeName(),
+                type.getTypeName());
         ThingStatus oldStatus, newStatus;
         oldStatus = currentState.getStatus();
         currentState.onExit();
@@ -94,7 +99,7 @@ public class DeviceHandler implements EqivablueDeviceListener {
     @Override
     @Trace
     public void notifyReceivedSignalStrength(int rssi) {
-        // logger.debug("RSSI {}", rssi);
+        logger.debug("{}: RSSI {}", deviceAdapter.getAddress(), rssi);
         if (rssi >= context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()) {
             currentState.indicateReceivedSignalStrength(rssi);
         } else {
@@ -104,19 +109,23 @@ public class DeviceHandler implements EqivablueDeviceListener {
 
     @Override
     public void notifyConnectionEstablished() {
+        logger.debug("{}: notifyConnectionEstablished", deviceAdapter.getAddress());
         currentState.notifyConnectionEstablished();
     }
 
     @Override
     public void notifyConnectionClosed() {
+        logger.debug("{}: notifyConnectionClosed", deviceAdapter.getAddress());
         currentState.notifyConnectionClosed();
     }
 
     public boolean requestConnection() {
+        logger.debug("{}: requestConnection", deviceAdapter.getAddress());
         return deviceAdapter.requestConnection();
     }
 
     public boolean requestDiscoverServices() {
+        logger.debug("{}: requestDiscoverServices", deviceAdapter.getAddress());
         return deviceAdapter.requestDiscoverServices();
     }
 
@@ -129,40 +138,49 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     public boolean requestDisconnect() {
+        logger.debug("{}: requestDisconnect", deviceAdapter.getAddress());
         return deviceAdapter.requestDisconnect();
     }
 
     public void notifyServicesDiscovered() {
+        logger.debug("{}: notifyServicesDiscovered", deviceAdapter.getAddress());
         currentState.notifyServicesDiscovered();
     }
 
     public boolean getCharacteristics() {
+        logger.debug("{}: getCharacteristics", deviceAdapter.getAddress());
         return deviceAdapter.getCharacteristics();
     }
 
     public boolean characteristicsAreAvailable() {
+        logger.debug("{}: characteristicsAreAvailable", deviceAdapter.getAddress());
         return deviceAdapter.characteristicsAreAvailable();
     }
 
     public void notifyCommandProcessingRequest() {
+        logger.debug("{}: notifyCommandProcessingRequest", deviceAdapter.getAddress());
         currentState.notifyCommandProcessingRequest();
     }
 
     public boolean transmitMessage(SendMessage message) {
+        logger.debug("{}: transmitMessage {}", deviceAdapter.getAddress(), message);
         return deviceAdapter.writeCharacteristic(message);
     }
 
     @Override
     public void notifyCharacteristicWritten() {
+        logger.debug("{}: notifyCharacteristicWritten", deviceAdapter.getAddress());
         currentState.notifyMessageTransmitted();
     }
 
     @Override
     public void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
+        logger.debug("{}: notifyCharacteristicUpdate {}", deviceAdapter.getAddress(), message);
         currentState.notifyCharacteristicUpdate(message);
     }
 
     public void handleMessage(EncodedReceiveMessage message) {
+        logger.debug("{}: handleMessage {}", deviceAdapter.getAddress(), message);
         message.decodeAndNotify(updateListener);
     }
 }
