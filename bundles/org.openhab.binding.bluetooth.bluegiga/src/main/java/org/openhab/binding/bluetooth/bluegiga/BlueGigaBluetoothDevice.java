@@ -13,6 +13,9 @@
 package org.openhab.binding.bluetooth.bluegiga;
 
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -238,6 +241,7 @@ public class BlueGigaBluetoothDevice extends BaseBluetoothDevice implements Blue
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void bluegigaEventReceived(BlueGigaResponse event) {
         if (event instanceof BlueGigaScanResponseEvent) {
@@ -338,8 +342,12 @@ public class BlueGigaBluetoothDevice extends BaseBluetoothDevice implements Blue
                     case EIR_SVC_UUID16_INCOMPLETE:
                     case EIR_SVC_UUID32_COMPLETE:
                     case EIR_SVC_UUID32_INCOMPLETE:
+                        break;
                     case EIR_SVC_UUID128_COMPLETE:
-                        // addServices((List<UUID>) eir.getRecord(record));
+                        for (UUID uuid : (List<UUID>) (eir.getRecord(EirDataType.EIR_SVC_UUID128_COMPLETE))) {
+                            BluetoothService service = new BluetoothService(uuid, true);
+                            addService(service);
+                        }
                         break;
                     case EIR_TXPOWER:
                         obj = eir.getRecord(EirDataType.EIR_TXPOWER);
