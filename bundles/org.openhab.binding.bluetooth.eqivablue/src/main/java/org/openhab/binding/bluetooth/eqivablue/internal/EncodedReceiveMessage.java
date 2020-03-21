@@ -30,7 +30,6 @@ public class EncodedReceiveMessage {
     private final Logger logger = LoggerFactory.getLogger(EncodedReceiveMessage.class);
 
     private int[] encodedMessage = null;
-    private ThermostatUpdateListener statusListener;
     private OperatingMode operatingMode;
     private boolean vacationModeIsActive;
     private boolean windowModeIsActive;
@@ -59,22 +58,21 @@ public class EncodedReceiveMessage {
     private static final int UNKNOWN_MASK = 0x40;
     private static final int BATTERY_MASK = 0x80;
 
-    public EncodedReceiveMessage(int[] encodedMessage, ThermostatUpdateListener aStatusListener) {
+    public EncodedReceiveMessage(int[] encodedMessage) {
         this.encodedMessage = encodedMessage;
-        this.statusListener = aStatusListener;
     }
 
-    public void decodeAndNotify() {
+    public void decodeAndNotify(ThermostatUpdateListener statusListener) {
         logger.debug("Decoding received message \"{}\"", encodedMessage);
         switch (encodedMessage[0]) {
             case 0x02:
                 decodeGeneralStatus(Arrays.copyOfRange(encodedMessage, 1, encodedMessage.length));
-                notifyGeneralStatus();
+                notifyGeneralStatus(statusListener);
                 logGeneralStatus();
                 break;
             case 0x21:
                 decodeTimeSchedule(Arrays.copyOfRange(encodedMessage, 1, encodedMessage.length));
-                notfyTimeSchedule();
+                notfyTimeSchedule(statusListener);
                 logTimeSchedule();
                 break;
             default:
@@ -87,7 +85,7 @@ public class EncodedReceiveMessage {
 
     }
 
-    private void notfyTimeSchedule() {
+    private void notfyTimeSchedule(ThermostatUpdateListener statusListener) {
         // TODO Auto-generated method stub
 
     }
@@ -106,7 +104,7 @@ public class EncodedReceiveMessage {
         logger.debug("Vacation DateTime: {}", vacationDateTime);
     }
 
-    private void notifyGeneralStatus() {
+    private void notifyGeneralStatus(ThermostatUpdateListener statusListener) {
         if (statusListener != null) {
             statusListener.onTargetTemperatureUpdated(targetTemperature);
             statusListener.onBoostModeIsActive(boostModeIsActive);

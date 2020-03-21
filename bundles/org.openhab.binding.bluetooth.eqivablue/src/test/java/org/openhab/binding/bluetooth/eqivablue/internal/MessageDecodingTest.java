@@ -28,9 +28,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
-import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
-import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +105,8 @@ public class MessageDecodingTest {
 
     @Test
     public void checkSimpleUpdateMessage() {
-        EncodedReceiveMessage message = new EncodedReceiveMessage(encodedMessage, listener);
-        message.decodeAndNotify();
+        EncodedReceiveMessage message = new EncodedReceiveMessage(encodedMessage);
+        message.decodeAndNotify(listener);
 
         verify(listener, times(1)).onOperationModeUpdated(operatingMode);
         verify(listener, times(1)).onVacationModeIsActive(vacationModeIsActive);

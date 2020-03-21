@@ -57,7 +57,7 @@ class WaitingForResponseState extends ConnectedState {
     void notifyCharacteristicUpdate(@NonNull EncodedReceiveMessage message) {
         CommandHandler commandHandler = deviceHandler.getCommandHandler();
         commandHandler.popCommand();
-        message.decodeAndNotify();
+        deviceHandler.handleMessage(message);
         if (commandHandler.areCommandsPending()) {
             deviceHandler.setState(TransmittingMessageState.class);
         } else {

@@ -12,6 +12,8 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.communication;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -21,7 +23,8 @@ import org.openhab.binding.bluetooth.BluetoothCompletionStatus;
 import org.openhab.binding.bluetooth.BluetoothDescriptor;
 import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.BluetoothDeviceListener;
-import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
+import org.openhab.binding.bluetooth.eqivablue.communication.states.Trace;
+import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.openhab.binding.bluetooth.notification.BluetoothScanNotification;
@@ -30,15 +33,15 @@ import org.openhab.binding.bluetooth.notification.BluetoothScanNotification;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
+public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
 
     private static final UUID UUID_EQIVA_BLUE_CONTROL_CHARACTERISTIC = UUID
             .fromString("3fa4585a-ce4a-3bad-db4b-b8df8179ea09");
     private static final UUID UUID_EQIVA_BLUE_NOTIFICATION_CHARACTERISTIC = UUID
             .fromString("d0e8434d-cd29-0996-af41-6c90f4e0eb2a");
 
+    private Set<EqivablueDeviceListener> deviceListeners;
     private BluetoothDevice device;
-    private DeviceHandler deviceHandler;
 
     @Nullable
     private BluetoothCharacteristic controlCharacteristic;
@@ -46,21 +49,46 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
     @Nullable
     private BluetoothCharacteristic notificationCharacteristic;
 
-    public BluetoothDeviceAdapter(BluetoothDevice theBluetoothDevice, DeviceHandler theDeviceHandler) {
-        device = theBluetoothDevice;
-        deviceHandler = theDeviceHandler;
+    public EqivablueDeviceAdapter(BluetoothDevice theDevice) {
+        device = theDevice;
+        device.addListener(this);
+        deviceListeners = new HashSet<EqivablueDeviceListener>();
+    }
+
+    public void dispose() {
+        device.removeListener(this);
+        deviceListeners.clear();
+    }
+
+    public boolean addListener(EqivablueDeviceListener theListener) {
+        return deviceListeners.add(theListener);
+    }
+
+    public boolean removeListener(EqivablueDeviceListener theListener) {
+        return deviceListeners.remove(theListener);
     }
 
     @Override
+    @Trace
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
-        // TODO Auto-generated method stub
+        deviceListeners.forEach((listener) -> {
+            listener.notifyReceivedSignalStrength(scanNotification.getRssi());
+        });
     }
 
     @Override
+    @Trace
     public void onConnectionStateChange(BluetoothConnectionStatusNotification connectionNotification) {
         switch (connectionNotification.getConnectionState()) {
             case CONNECTED:
-                deviceHandler.notifyConnectionEstablished();
+                deviceListeners.forEach((listener) -> {
+                    listener.notifyConnectionEstablished();
+                });
+                break;
+            case DISCONNECTED:
+                deviceListeners.forEach((listener) -> {
+                    listener.notifyConnectionClosed();
+                });
                 break;
             default:
                 break;
@@ -68,57 +96,80 @@ public class BluetoothDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
+    @Trace
     public void onServicesDiscovered() {
     }
 
     @Override
+    @Trace
     public void onCharacteristicReadComplete(BluetoothCharacteristic characteristic, BluetoothCompletionStatus status) {
-        // TODO Auto-generated method stub
     }
 
     @Override
+    @Trace
     public void onCharacteristicWriteComplete(BluetoothCharacteristic characteristic,
             BluetoothCompletionStatus status) {
-        // TODO Auto-generated method stub
-
+        if ((characteristic == controlCharacteristic) && (status == BluetoothCompletionStatus.SUCCESS)) {
+            deviceListeners.forEach((listener) -> {
+                listener.notifyCharacteristicWritten();
+            });
+        }
     }
 
     @Override
+    @Trace
     public void onCharacteristicUpdate(BluetoothCharacteristic characteristic) {
-        // TODO Auto-generated method stub
+        if (characteristic == notificationCharacteristic) {
+            EncodedReceiveMessage message = new EncodedReceiveMessage(characteristic.getValue());
+            deviceListeners.forEach((listener) -> {
+                listener.notifyCharacteristicUpdate(message);
+            });
+        }
     }
 
     @Override
+    @Trace
     public void onDescriptorUpdate(BluetoothDescriptor bluetoothDescriptor) {
-        // TODO Auto-generated method stub
     }
 
+    @Trace
+    public void requestScan() {
+        device.getAdapter().scanStart();
+    }
+
+    @Trace
     public boolean requestConnection() {
         return device.connect();
     }
 
+    @Trace
     public boolean requestDiscoverServices() {
         return device.discoverServices();
     }
 
+    @Trace
     public void requestCharacteristics() {
     }
 
+    @Trace
     public boolean requestDisconnect() {
         return device.disconnect();
     }
 
+    @Trace
     public boolean getCharacteristics() {
         controlCharacteristic = device.getCharacteristic(UUID_EQIVA_BLUE_CONTROL_CHARACTERISTIC);
         notificationCharacteristic = device.getCharacteristic(UUID_EQIVA_BLUE_NOTIFICATION_CHARACTERISTIC);
         return (controlCharacteristic != null) && (notificationCharacteristic != null);
     }
 
+    @Trace
     public boolean characteristicsAreAvailable() {
         // TODO Auto-generated method stub
         return false;
     }
 
+    @Trace
     public boolean writeCharacteristic(SendMessage theMessage) {
         if (controlCharacteristic != null) {
             controlCharacteristic.setValue(theMessage.getEncodedContent());

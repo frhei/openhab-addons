@@ -15,11 +15,9 @@
 
   <properties>
     <aspectj.version>1.9.4</aspectj.version>
-    <jcabi-aspects.version>0.22.6</jcabi-aspects.version>
     <junitparams.version>1.1.0</junitparams.version>
     <junit.jupiter.minorversion>5.2</junit.jupiter.minorversion>
     <junit.jupiter.version>5.${junit.jupiter.minorversion}</junit.jupiter.version>
-    <assertj.version>3.9.0</assertj.version>
     <mockito.version>2.25.0</mockito.version>
   </properties>
 
@@ -35,11 +33,6 @@
 	    <artifactId>aspectjrt</artifactId>
 	    <version>${aspectj.version}</version>
     </dependency>
-    <!-- dependency>
-        <groupId>com.jcabi</groupId>
-        <artifactId>jcabi-aspects</artifactId>
-        <version>${jcabi-aspects.version}</version>
-    </dependency-->
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-launcher</artifactId>
@@ -76,81 +69,14 @@
 	    <scope>test</scope>
 	    <version>2.12.1</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-bom</artifactId>
-      <version>2.12.1</version>
-      <scope>test</scope>
-      <type>pom</type>
-    </dependency>
-        <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
-        <scope>test</scope>
-        <version>2.9.6</version>
-    </dependency>
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <scope>test</scope>
-        <version>2.9.6</version>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <!-- plugin>
-        <groupId>com.jcabi</groupId>
-        <artifactId>jcabi-maven-plugin</artifactId>
-        <configuration>
-		   <source>1.8</source>
-		   <target>1.8</target>
-		</configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>ajc</goal>
-            </goals>
-          </execution>
-        </executions>
-	    <dependencies>
-          <dependency>
-              <groupId>com.jcabi</groupId>
-              <artifactId>jcabi-aspects</artifactId>
-              <version>${jcabi-aspects.version}</version>
-          </dependency>
-	    </dependencies>
-      </plugin-->
-	    <plugin>
-		    <groupId>org.codehaus.mojo</groupId>
-		    <artifactId>aspectj-maven-plugin</artifactId>
-		    <configuration>
-		        <complianceLevel>1.8</complianceLevel>
-		        <source>1.8</source>
-		        <target>1.8</target>
-		        <showWeaveInfo>true</showWeaveInfo>
-		        <verbose>true</verbose>
-		        <Xlint>ignore</Xlint>
-		        <encoding>UTF-8 </encoding>
-		    </configuration>
-		    <executions>
-		        <execution>
-		            <goals>
-		                <goal>compile</goal>
-		                <goal>test-compile</goal>
-		            </goals>
-		        </execution>
-		    </executions>
-      </plugin>
 	  <plugin>
-	    <artifactId>maven-surefire-plugin</artifactId>
-	    <configuration>
-	      <systemPropertyVariables>
-	        <org.slf4j.simpleLogger.defaultLogLevel>DEBUG</org.slf4j.simpleLogger.defaultLogLevel>
-	        <org.slf4j.simpleLogger.showDateTime>true</org.slf4j.simpleLogger.showDateTime>
-	      </systemPropertyVariables>
-	    </configuration>
-	  </plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>aspectj-maven-plugin</artifactId>
+      </plugin>
 	  <plugin>
         <groupId>com.tngtech.jgiven</groupId>
         <artifactId>jgiven-maven-plugin</artifactId>
@@ -167,7 +93,6 @@
         </configuration>
       </plugin>
     </plugins>
-    
     
     <pluginManagement>
       <plugins>
@@ -188,7 +113,6 @@
                 <execution>
                     <goals>
                         <goal>compile</goal>
-                        <goal>test-compile</goal>
                     </goals>
                 </execution>
             </executions>
@@ -205,34 +129,6 @@
 		    </dependency>
          </dependencies>
       </plugin>
-        <!-- plugin>
-         <groupId>com.jcabi</groupId>
-         <artifactId>jcabi-maven-plugin</artifactId>
-         <version>0.14</version>
-         <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
-         </configuration>
-         <executions>
-            <execution>
-               <goals>
-                  <goal>ajc</goal>
-               </goals>
-            </execution>
-         </executions>
-         <dependencies>
-            <dependency>
-               <groupId>org.aspectj</groupId>
-               <artifactId>aspectjrt</artifactId>
-               <version>${aspectj.version}</version>
-            </dependency>
-            <dependency>
-               <groupId>org.aspectj</groupId>
-               <artifactId>aspectjtools</artifactId>
-               <version>${aspectj.version}</version>
-            </dependency>
-         </dependencies>
-      </plugin-->
       <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>
@@ -254,27 +150,10 @@
                   </action>
                 </pluginExecution>
               </pluginExecutions>
-              <!--pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>com.jcabi</groupId>
-                    <artifactId>jcabi-maven-plugin</artifactId>
-                    <versionRange>[0.14,)</versionRange>
-                    <goals>
-                      <goal>ajc</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <execute />
-                  </action>
-                </pluginExecution>
-              </pluginExecutions-->
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
-
       </plugins>
-          </pluginManagement>
-
+    </pluginManagement>
   </build>
 </project>

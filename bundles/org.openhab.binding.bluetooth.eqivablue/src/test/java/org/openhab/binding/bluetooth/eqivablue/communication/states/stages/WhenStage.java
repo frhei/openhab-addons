@@ -6,7 +6,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.openhab.binding.bluetooth.eqivablue.communication.BluetoothDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
 import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContext;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
@@ -25,7 +25,7 @@ public class WhenStage extends Stage<WhenStage> {
 
     @ExpectedScenarioState
     @Mock
-    BluetoothDeviceAdapter deviceAdapter;
+    EqivablueDeviceAdapter deviceAdapter;
 
     @ExpectedScenarioState
     @Mock
@@ -63,7 +63,7 @@ public class WhenStage extends Stage<WhenStage> {
     }
 
     public WhenStage adapter_received_signal_with_strength(int rssi) {
-        deviceHandler.updateReceivedSignalStrength(rssi);
+        deviceHandler.notifyReceivedSignalStrength(rssi);
         return this;
     }
 
@@ -76,7 +76,7 @@ public class WhenStage extends Stage<WhenStage> {
         int arbitraryRssi = -45;
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         executorService.addListener(testContext);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         executorService.removeListener(testContext);
         return this;
     }
@@ -85,7 +85,7 @@ public class WhenStage extends Stage<WhenStage> {
         int arbitraryRssi = -55;
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         executorService.addListener(testContext);
         deviceHandler.notifyConnectionEstablished();
         executorService.removeListener(testContext);
@@ -98,7 +98,7 @@ public class WhenStage extends Stage<WhenStage> {
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
         Mockito.when(deviceAdapter.requestDiscoverServices()).thenReturn(true);
         Mockito.when(deviceAdapter.getCharacteristics()).thenReturn(true);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         deviceHandler.notifyConnectionEstablished();
         deviceHandler.notifyServicesDiscovered();
         return this;
@@ -108,7 +108,7 @@ public class WhenStage extends Stage<WhenStage> {
         int arbitraryRssi = -55;
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         return this;
     }
 
@@ -116,7 +116,7 @@ public class WhenStage extends Stage<WhenStage> {
         int arbitraryRssi = -45;
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         executorService.addListener(testContext);
         deviceHandler.notifyCommandProcessingRequest();
         executorService.removeListener(testContext);
@@ -128,7 +128,7 @@ public class WhenStage extends Stage<WhenStage> {
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         deviceHandler.notifyCommandProcessingRequest();
         executorService.addListener(testContext);
         deviceHandler.notifyConnectionEstablished();
@@ -142,7 +142,7 @@ public class WhenStage extends Stage<WhenStage> {
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
         Mockito.when(deviceAdapter.writeCharacteristic(ArgumentMatchers.any())).thenReturn(true);
-        deviceHandler.updateReceivedSignalStrength(arbitraryRssi);
+        deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         deviceHandler.notifyCommandProcessingRequest();
         deviceHandler.notifyConnectionEstablished();
         executorService.addListener(testContext);

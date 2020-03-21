@@ -18,8 +18,9 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.openhab.binding.bluetooth.eqivablue.communication.BluetoothDeviceAdapter;
 import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
+import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceListener;
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
@@ -28,9 +29,9 @@ import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-public class DeviceHandler {
+public class DeviceHandler implements EqivablueDeviceListener {
 
-    private BluetoothDeviceAdapter deviceAdapter;
+    private EqivablueDeviceAdapter deviceAdapter;
     private CommandHandler commandHandler;
     private ThermostatUpdateListener updateListener;
     private DeviceContext context;
@@ -39,12 +40,13 @@ public class DeviceHandler {
 
     // private final Logger logger = LoggerFactory.getLogger(DeviceHandler.class);
 
-    public DeviceHandler(BluetoothDeviceAdapter theDeviceAdapter, CommandHandler theCommandHandler,
+    public DeviceHandler(EqivablueDeviceAdapter theDeviceAdapter, CommandHandler theCommandHandler,
             ThermostatUpdateListener theUpdateListener, DeviceContext theContext) {
         deviceAdapter = theDeviceAdapter;
         commandHandler = theCommandHandler;
         updateListener = theUpdateListener;
         context = theContext;
+
         states = new HashMap<Type, DeviceState>();
         states.put(NoSignalState.class, new NoSignalState(this));
         states.put(ConnectingForServiceDiscoveryState.class, new ConnectingForServiceDiscoveryState(this));
@@ -59,6 +61,12 @@ public class DeviceHandler {
 
         currentState = states.get(NoSignalState.class);
         updateListener.updateThingStatus(currentState.getStatus());
+
+        deviceAdapter.addListener(this);
+    }
+
+    public void dispose() {
+        deviceAdapter.removeListener(this);
     }
 
     @Trace
@@ -75,7 +83,7 @@ public class DeviceHandler {
         }
     }
 
-    BluetoothDeviceAdapter getDeviceAdapter() {
+    EqivablueDeviceAdapter getDeviceAdapter() {
         return deviceAdapter;
     }
 
@@ -83,7 +91,9 @@ public class DeviceHandler {
         return currentState.getStatus();
     }
 
-    public void updateReceivedSignalStrength(int rssi) {
+    @Override
+    @Trace
+    public void notifyReceivedSignalStrength(int rssi) {
         // logger.debug("RSSI {}", rssi);
         if (rssi >= context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()) {
             currentState.indicateReceivedSignalStrength(rssi);
@@ -92,10 +102,12 @@ public class DeviceHandler {
         }
     }
 
+    @Override
     public void notifyConnectionEstablished() {
         currentState.notifyConnectionEstablished();
     }
 
+    @Override
     public void notifyConnectionClosed() {
         currentState.notifyConnectionClosed();
     }
@@ -140,11 +152,17 @@ public class DeviceHandler {
         return deviceAdapter.writeCharacteristic(message);
     }
 
+    @Override
     public void notifyCharacteristicWritten() {
         currentState.notifyMessageTransmitted();
     }
 
+    @Override
     public void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
         currentState.notifyCharacteristicUpdate(message);
+    }
+
+    public void handleMessage(EncodedReceiveMessage message) {
+        message.decodeAndNotify(updateListener);
     }
 }

@@ -12,6 +12,9 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.communication;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 
@@ -21,19 +24,22 @@ import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 @NonNullByDefault
 public class CommandHandler {
 
+    private BlockingQueue<SendMessage> commands = new LinkedBlockingQueue<SendMessage>();
+
     public boolean areCommandsPending() {
-        // TODO Auto-generated method stub
-        return true;
+        return !commands.isEmpty();
     }
 
     public SendMessage peekCommand() {
-        // TODO Auto-generated method stub
-        return SendMessage.queryStatus();
+        return commands.peek();
     }
 
     public void popCommand() {
-        // TODO Auto-generated method stub
+        commands.poll();
+    }
 
+    public void add(SendMessage theMessage) {
+        commands.add(theMessage);
     }
 
 }

@@ -6,7 +6,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.openhab.binding.bluetooth.eqivablue.communication.BluetoothDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
 import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContext;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
@@ -22,7 +22,7 @@ public class GivenStage extends Stage<GivenStage> {
 
     @ProvidedScenarioState
     @Mock
-    BluetoothDeviceAdapter deviceAdapter;
+    EqivablueDeviceAdapter deviceAdapter;
 
     @ProvidedScenarioState
     @Mock

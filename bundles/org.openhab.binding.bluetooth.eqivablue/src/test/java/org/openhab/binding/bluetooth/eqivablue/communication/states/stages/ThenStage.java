@@ -9,8 +9,8 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.openhab.binding.bluetooth.eqivablue.communication.BluetoothDeviceAdapter;
 import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
+import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContext;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
@@ -23,7 +23,7 @@ public class ThenStage extends Stage<ThenStage> {
 
     @ExpectedScenarioState
     @Mock
-    BluetoothDeviceAdapter deviceAdapter;
+    EqivablueDeviceAdapter deviceAdapter;
 
     @ExpectedScenarioState
     @Mock
@@ -127,7 +127,7 @@ public class ThenStage extends Stage<ThenStage> {
     }
 
     public ThenStage the_received_response_is_processed() {
-        verify(receivedMessage, times(1)).decodeAndNotify();
+        verify(receivedMessage, times(1)).decodeAndNotify(any());
         return this;
     }
 

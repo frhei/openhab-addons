@@ -16,6 +16,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +28,26 @@ import org.slf4j.LoggerFactory;
 @Aspect
 public class TraceAspect {
 
-    private final Logger logger = LoggerFactory.getLogger(TraceAspect.class);
+    /*
+     * @Pointcut("@annotation(Trace) && execution(* *.*(..))")
+     * public void methodToTrace() {
+     * }
+     */
 
-    @Before(value = "@annotation(Trace)")
+    @Pointcut("execution(* org.openhab.binding.bluetooth.eqivablue..*(..))")
+    public void methodToTrace() {
+    }
+
+    @Before("methodToTrace()")
     public void before(JoinPoint joinPoint) throws Throwable {
-        logger.trace("monitor.before, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName()
-                + ", method: " + joinPoint.getSignature().getName());
+        Logger logger = LoggerFactory.getLogger(joinPoint.getSignature().getDeclaringType());
+        logger.trace(" --> " + joinPoint.getSignature().getName());
     }
 
-    @After(value = "@annotation(org.openhab.binding.bluetooth.eqivablue.communication.states.Trace)")
+    @After("methodToTrace()")
     public void after(JoinPoint joinPoint) throws Throwable {
-        logger.debug("monitor.after, class: " + joinPoint.getSignature().getDeclaringType().getSimpleName()
-                + ", method: " + joinPoint.getSignature().getName());
+        Logger logger = LoggerFactory.getLogger(joinPoint.getSignature().getDeclaringType());
+        logger.trace(" <-- " + joinPoint.getSignature().getName());
     }
+
 }

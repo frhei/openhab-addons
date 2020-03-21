@@ -20,17 +20,27 @@ import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.BridgeHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
-import org.openhab.binding.bluetooth.BeaconBluetoothHandler;
+import org.openhab.binding.bluetooth.BluetoothAdapter;
+import org.openhab.binding.bluetooth.BluetoothAddress;
+import org.openhab.binding.bluetooth.BluetoothBindingConstants;
+import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
-import org.openhab.binding.bluetooth.eqivablue.internal.DeviceConnection;
+import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
+import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContext;
+import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
+import org.openhab.binding.bluetooth.eqivablue.communication.states.Trace;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
-import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatContext;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.slf4j.Logger;
@@ -43,15 +53,29 @@ import org.slf4j.LoggerFactory;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-public class ThermostatHandler extends BeaconBluetoothHandler implements ThermostatUpdateListener {
+public class ThermostatHandler extends BaseThingHandler implements ThermostatUpdateListener {
 
     private final Logger logger = LoggerFactory.getLogger(ThermostatHandler.class);
 
     @NonNullByDefault({} /* non-null if initialized */)
-    private ThermostatContext thermostatContext;
+    private BluetoothAdapter adapter;
+
     @NonNullByDefault({} /* non-null if initialized */)
-    private DeviceConnection deviceConnection;
+    private BluetoothAddress address;
+
     @NonNullByDefault({} /* non-null if initialized */)
+    private BluetoothDevice device;
+
+    @NonNullByDefault({} /* non-null if initialized */)
+    private EqivablueDeviceAdapter deviceAdapter;
+    @NonNullByDefault({} /* non-null if initialized */)
+    private DeviceContext deviceContext;
+    @NonNullByDefault({} /* non-null if initialized */)
+    private CommandHandler commandHandler;
+    @NonNullByDefault({} /* non-null if initialized */)
+    private DeviceHandler deviceHandler;
+    @NonNullByDefault({} /* non-null if initialized */)
+
     private float ecoPresetTemperature;
     private float comfortPresetTemperature;
 
@@ -62,19 +86,53 @@ public class ThermostatHandler extends BeaconBluetoothHandler implements Thermos
     }
 
     @Override
+    @Trace
     public void initialize() {
-        super.initialize();
-        thermostatContext = new ThermostatContext(this);
-        deviceConnection = new DeviceConnection(device, this, thermostatContext);
-        device.addListener(deviceConnection);
+        try {
+            address = new BluetoothAddress(getConfig().get(BluetoothBindingConstants.CONFIGURATION_ADDRESS).toString());
+        } catch (IllegalArgumentException e) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getLocalizedMessage());
+            return;
+        }
+
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Not associated with any bridge");
+            return;
+        }
+
+        BridgeHandler bridgeHandler = bridge.getHandler();
+        if (!(bridgeHandler instanceof BluetoothAdapter)) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "Associated with an unsupported bridge");
+            return;
+        }
+
+        adapter = (BluetoothAdapter) bridgeHandler;
+
+        try {
+            device = adapter.getDevice(address);
+            deviceAdapter = new EqivablueDeviceAdapter(device);
+            deviceContext = new DeviceContext();
+            commandHandler = new CommandHandler();
+            deviceHandler = new DeviceHandler(deviceAdapter, commandHandler, this, deviceContext);
+        } finally {
+        }
+
+        updateStatus(ThingStatus.UNKNOWN);
+    }
+
+    @Override
+    public void handleRemoval() {
+        deviceHandler.dispose();
+        deviceAdapter.dispose();
+        super.handleRemoval();
     }
 
     @Override
     public void dispose() {
-        device.removeListener(deviceConnection);
-        deviceConnection.dispose();
-        thermostatContext.dispose();
         super.dispose();
+        handleRemoval();
     }
 
     @Override
@@ -105,52 +163,56 @@ public class ThermostatHandler extends BeaconBluetoothHandler implements Thermos
                     break;
             }
         }
-        super.handleCommand(channelUID, command);
+    }
+
+    private void postCommandAndNotify(SendMessage theMessage) {
+        commandHandler.add(theMessage);
+        deviceHandler.notifyCommandProcessingRequest();
     }
 
     private void selectBoostMode(Command command) {
         boolean boostModeActivated = ((OnOffType) command) == OnOffType.ON;
         SendMessage messageToBeSent = SendMessage.setBoostMode(boostModeActivated);
-        deviceConnection.sendMessage(messageToBeSent);
+        postCommandAndNotify(messageToBeSent);
     }
 
     private void selectPresetTemperature(Command command) {
         PresetTemperature presetTemperature = PresetTemperature.valueOf(((StringType) command).toString());
         if (presetTemperature != PresetTemperature.None) {
             SendMessage messageToBeSent = SendMessage.setPresetTemperature(presetTemperature);
-            deviceConnection.sendMessage(messageToBeSent);
+            postCommandAndNotify(messageToBeSent);
         }
     }
 
     private void setOperatingMode(Command command) {
         OperatingMode operatingMode = OperatingMode.valueOf(((StringType) command).toString());
         SendMessage messageToBeSent = SendMessage.setOperatingModeMode(operatingMode);
-        deviceConnection.sendMessage(messageToBeSent);
+        postCommandAndNotify(messageToBeSent);
     }
 
     private void setComfortPresetTemperature(Command command) {
         comfortPresetTemperature = ((DecimalType) command).floatValue();
         SendMessage messageToBeSent = SendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
-        deviceConnection.sendMessage(messageToBeSent);
+        postCommandAndNotify(messageToBeSent);
     }
 
     private void setEcoPresetTemperature(Command command) {
         ecoPresetTemperature = ((DecimalType) command).floatValue();
         SendMessage messageToBeSent = SendMessage.setEcoAndComfortTemperature(comfortPresetTemperature,
                 ecoPresetTemperature);
-        deviceConnection.sendMessage(messageToBeSent);
+        postCommandAndNotify(messageToBeSent);
     }
 
     private void getStatusFromRemoteDevice() {
         SendMessage messageToBeSent = SendMessage.queryStatus();
-        deviceConnection.sendMessage(messageToBeSent);
+        postCommandAndNotify(messageToBeSent);
     }
 
     private void setTargetTemperature(Command command) {
         float targetTemperature = ((DecimalType) command).floatValue();
         SendMessage messageToBeSent = SendMessage.setTargetTemperature(targetTemperature);
-        deviceConnection.sendMessage(messageToBeSent);
+        postCommandAndNotify(messageToBeSent);
     }
 
     @Override
@@ -221,7 +283,6 @@ public class ThermostatHandler extends BeaconBluetoothHandler implements Thermos
     @Override
     public void updateThingStatus(ThingStatus status) {
         updateStatus(status);
-
     }
 
 }
