@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -15,7 +15,6 @@ package org.openhab.binding.bluetooth.eqivablue.communication.states;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
@@ -48,13 +47,14 @@ class WaitingForResponseState extends ConnectedState {
 
     @Override
     void onExit() {
-        if (timeoutHandler != null) {
-            timeoutHandler.cancel(true);
+        ScheduledFuture<?> localTimeoutHandler = timeoutHandler;
+        if (localTimeoutHandler != null) {
+            localTimeoutHandler.cancel(true);
         }
     }
 
     @Override
-    void notifyCharacteristicUpdate(@NonNull EncodedReceiveMessage message) {
+    void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
         CommandHandler commandHandler = deviceHandler.getCommandHandler();
         commandHandler.popCommand();
         deviceHandler.handleMessage(message);

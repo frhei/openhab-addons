@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -14,20 +14,21 @@ package org.openhab.binding.bluetooth.eqivablue.internal;
 
 import java.time.LocalDateTime;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public interface ThermostatUpdateListener {
     void onTargetTemperatureUpdated(float temperature);
 
-    void onOperationModeUpdated(@NonNull OperatingMode operationMode);
+    void onOperationModeUpdated(OperatingMode operationMode);
 
     void onVacationModeIsActive(boolean vacationModeIsActive);
 
-    void onVacationModeEndDateTimeUpdate(@NonNull LocalDateTime vacationEndDateTime);
+    void onVacationModeEndDateTimeUpdate(LocalDateTime vacationEndDateTime);
 
     void onWindowModeIsActive(boolean windowModeIsActive);
 
@@ -41,6 +42,6 @@ public interface ThermostatUpdateListener {
 
     void onValveStatusUpdated(int valveStatus);
 
-    void updateThingStatus(@NonNull ThingStatus status);
+    void updateThingStatus(ThingStatus status);
 
 }

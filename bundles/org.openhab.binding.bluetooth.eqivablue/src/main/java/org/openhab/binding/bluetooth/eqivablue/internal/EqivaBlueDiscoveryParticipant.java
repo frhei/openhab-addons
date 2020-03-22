@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -34,18 +34,19 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 @Component(immediate = true)
 public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticipant {
 
     private static final UUID UUID_EQIVA_BLUE_SERVICE = UUID.fromString("3e135142-654f-9090-134a-a6ff5bb77046");
 
     @Override
-    public @NonNull Set<@NonNull ThingTypeUID> getSupportedThingTypeUIDs() {
+    public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
         return Collections.singleton(EqivaBlueBindingConstants.THING_TYPE_EQIVA_BLUE);
     }
 
     @Override
-    public @Nullable ThingUID getThingUID(@NonNull BluetoothDevice device) {
+    public @Nullable ThingUID getThingUID(BluetoothDevice device) {
         if ((EqivaBlueBindingConstants.EQIVA_BLUE_NAME.equals(device.getName()))
                 || (device.supportsService(UUID_EQIVA_BLUE_SERVICE))) {
             return new ThingUID(EqivaBlueBindingConstants.THING_TYPE_EQIVA_BLUE, device.getAdapter().getUID(),
@@ -56,7 +57,7 @@ public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticip
     }
 
     @Override
-    public DiscoveryResult createResult(@NonNull BluetoothDevice device) {
+    public @Nullable DiscoveryResult createResult(BluetoothDevice device) {
         ThingUID thingUID = getThingUID(device);
 
         if (thingUID != null) {

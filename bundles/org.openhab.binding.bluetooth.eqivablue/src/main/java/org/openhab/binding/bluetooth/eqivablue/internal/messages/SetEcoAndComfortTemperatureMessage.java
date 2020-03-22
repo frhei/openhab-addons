@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,9 +12,12 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.internal.messages;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class SetEcoAndComfortTemperatureMessage extends SendMessage {
     public SetEcoAndComfortTemperatureMessage(float comfortTemperature, float ecoTemperature) {
         sequence.add(COMMAND_SET_ECO_AND_COMFORT_TEMPERATURE);

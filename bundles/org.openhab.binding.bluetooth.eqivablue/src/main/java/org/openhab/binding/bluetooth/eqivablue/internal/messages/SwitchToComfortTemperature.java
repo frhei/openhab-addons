@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -12,9 +12,12 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.internal.messages;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class SwitchToComfortTemperature extends SendMessage {
     public SwitchToComfortTemperature() {
         sequence.add(COMMAND_SWITCH_TO_COMFORT_TEMPERATURE);

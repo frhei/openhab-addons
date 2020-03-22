@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -15,6 +15,7 @@ package org.openhab.binding.bluetooth.eqivablue.internal.messages;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
@@ -22,6 +23,7 @@ import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class SendMessage {
     public enum MessageStatus {
         CREATED,

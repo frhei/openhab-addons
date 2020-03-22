@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2020 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -20,17 +20,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class EncodedReceiveMessage {
     private final Logger logger = LoggerFactory.getLogger(EncodedReceiveMessage.class);
 
-    private int[] encodedMessage = null;
-    private OperatingMode operatingMode;
+    private int[] encodedMessage;
+    private OperatingMode operatingMode = OperatingMode.Manual;
     private boolean vacationModeIsActive;
     private boolean windowModeIsActive;
     private boolean boostModeIsActive;
@@ -42,7 +44,7 @@ public class EncodedReceiveMessage {
     @SuppressWarnings("unused")
     private boolean unknownMode;
 
-    private LocalDateTime vacationDateTime;
+    private LocalDateTime vacationDateTime = LocalDateTime.of(1970, 1, 1, 0, 0);
     private Map<DayOfWeek, List<ScheduleEntry>> timeSchedule = new HashMap<DayOfWeek, List<ScheduleEntry>>();
 
     public LocalDateTime getVacationDateTime() {
@@ -105,18 +107,16 @@ public class EncodedReceiveMessage {
     }
 
     private void notifyGeneralStatus(ThermostatUpdateListener statusListener) {
-        if (statusListener != null) {
-            statusListener.onTargetTemperatureUpdated(targetTemperature);
-            statusListener.onBoostModeIsActive(boostModeIsActive);
-            statusListener.onOperationModeUpdated(operatingMode);
-            statusListener.onValveStatusUpdated(valveState);
-            statusListener.onDaylightSavingTimeIsActive(daylightSavingTimeIsActive);
-            statusListener.onWindowModeIsActive(windowModeIsActive);
-            statusListener.onUserLockIsActive(userLockIsActive);
-            statusListener.onBatteryLevelIsLow(batteryLevelIsLow);
-            statusListener.onVacationModeIsActive(vacationModeIsActive);
-            statusListener.onVacationModeEndDateTimeUpdate(vacationDateTime);
-        }
+        statusListener.onTargetTemperatureUpdated(targetTemperature);
+        statusListener.onBoostModeIsActive(boostModeIsActive);
+        statusListener.onOperationModeUpdated(operatingMode);
+        statusListener.onValveStatusUpdated(valveState);
+        statusListener.onDaylightSavingTimeIsActive(daylightSavingTimeIsActive);
+        statusListener.onWindowModeIsActive(windowModeIsActive);
+        statusListener.onUserLockIsActive(userLockIsActive);
+        statusListener.onBatteryLevelIsLow(batteryLevelIsLow);
+        statusListener.onVacationModeIsActive(vacationModeIsActive);
+        statusListener.onVacationModeEndDateTimeUpdate(vacationDateTime);
     }
 
     private void decodeTimeSchedule(int[] value) {
