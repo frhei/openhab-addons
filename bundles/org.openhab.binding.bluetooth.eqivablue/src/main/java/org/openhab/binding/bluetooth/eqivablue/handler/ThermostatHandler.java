@@ -38,7 +38,6 @@ import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
 import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContext;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
-import org.openhab.binding.bluetooth.eqivablue.communication.states.Trace;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
@@ -86,7 +85,6 @@ public class ThermostatHandler extends BaseThingHandler implements ThermostatUpd
     }
 
     @Override
-    @Trace
     public void initialize() {
         try {
             address = new BluetoothAddress(getConfig().get(BluetoothBindingConstants.CONFIGURATION_ADDRESS).toString());

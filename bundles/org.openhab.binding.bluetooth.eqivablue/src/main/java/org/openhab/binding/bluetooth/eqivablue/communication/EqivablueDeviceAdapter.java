@@ -25,7 +25,6 @@ import org.openhab.binding.bluetooth.BluetoothDescriptor;
 import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.BluetoothDeviceListener;
 import org.openhab.binding.bluetooth.BluetoothService;
-import org.openhab.binding.bluetooth.eqivablue.communication.states.Trace;
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
@@ -73,7 +72,6 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
-    @Trace
     public void onScanRecordReceived(BluetoothScanNotification scanNotification) {
         deviceListeners.forEach((listener) -> {
             listener.notifyReceivedSignalStrength(scanNotification.getRssi());
@@ -81,7 +79,6 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
-    @Trace
     public void onConnectionStateChange(BluetoothConnectionStatusNotification connectionNotification) {
         switch (connectionNotification.getConnectionState()) {
             case CONNECTED:
@@ -100,7 +97,6 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
-    @Trace
     public void onServicesDiscovered() {
         BluetoothService service = device.getServices(UUID_EQIVA_BLUE_SERVICE);
         if ((service != null) && (service.getHandleStart() != 0) && (service.getHandleEnd() != 0)) {
@@ -111,12 +107,10 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
-    @Trace
     public void onCharacteristicReadComplete(BluetoothCharacteristic characteristic, BluetoothCompletionStatus status) {
     }
 
     @Override
-    @Trace
     public void onCharacteristicWriteComplete(BluetoothCharacteristic characteristic,
             BluetoothCompletionStatus status) {
         if ((characteristic == controlCharacteristic) && (status == BluetoothCompletionStatus.SUCCESS)) {
@@ -127,7 +121,6 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
-    @Trace
     public void onCharacteristicUpdate(BluetoothCharacteristic characteristic) {
         if (characteristic == notificationCharacteristic) {
             EncodedReceiveMessage message = new EncodedReceiveMessage(characteristic.getValue());
@@ -138,48 +131,39 @@ public class EqivablueDeviceAdapter implements BluetoothDeviceListener {
     }
 
     @Override
-    @Trace
     public void onDescriptorUpdate(BluetoothDescriptor bluetoothDescriptor) {
     }
 
-    @Trace
     public void requestScan() {
         device.getAdapter().scanStart();
     }
 
-    @Trace
     public boolean requestConnection() {
         return device.connect();
     }
 
-    @Trace
     public boolean requestDiscoverServices() {
         return device.discoverServices();
     }
 
-    @Trace
     public void requestCharacteristics() {
     }
 
-    @Trace
     public boolean requestDisconnect() {
         return device.disconnect();
     }
 
-    @Trace
     public boolean getCharacteristics() {
         controlCharacteristic = device.getCharacteristic(UUID_EQIVA_BLUE_CONTROL_CHARACTERISTIC);
         notificationCharacteristic = device.getCharacteristic(UUID_EQIVA_BLUE_NOTIFICATION_CHARACTERISTIC);
         return (controlCharacteristic != null) && (notificationCharacteristic != null);
     }
 
-    @Trace
     public boolean characteristicsAreAvailable() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    @Trace
     public boolean writeCharacteristic(SendMessage theMessage) {
         BluetoothCharacteristic localCharacteristic = controlCharacteristic;
         if (localCharacteristic != null) {

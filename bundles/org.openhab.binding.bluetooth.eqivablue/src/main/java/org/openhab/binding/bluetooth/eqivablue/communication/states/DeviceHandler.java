@@ -73,7 +73,6 @@ public class DeviceHandler implements EqivablueDeviceListener {
         deviceAdapter.removeListener(this);
     }
 
-    @Trace
     public void setState(Type type) {
         logger.debug("{}: {} -> {}", deviceAdapter.getAddress(), currentState.getClass().getTypeName(),
                 type.getTypeName());
@@ -97,7 +96,6 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     @Override
-    @Trace
     public void notifyReceivedSignalStrength(int rssi) {
         logger.debug("{}: RSSI {}", deviceAdapter.getAddress(), rssi);
         if (rssi >= context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()) {
