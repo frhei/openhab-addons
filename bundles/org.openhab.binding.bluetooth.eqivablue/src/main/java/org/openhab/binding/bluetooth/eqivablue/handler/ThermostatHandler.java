@@ -122,6 +122,7 @@ public class ThermostatHandler extends BaseThingHandler implements ThermostatUpd
 
     @Override
     public void handleRemoval() {
+        logger.debug("EqivaBlueHandler handling removal");
         deviceHandler.dispose();
         deviceAdapter.dispose();
         super.handleRemoval();
@@ -129,8 +130,8 @@ public class ThermostatHandler extends BaseThingHandler implements ThermostatUpd
 
     @Override
     public void dispose() {
+        logger.debug("EqivaBlueHandler disposing");
         super.dispose();
-        handleRemoval();
     }
 
     @Override
