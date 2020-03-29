@@ -24,19 +24,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author Frank Heister - Initial contribution
  */
-@SuppressWarnings("null")
+@NonNullByDefault
 abstract class FakeScheduledExecutorService implements ScheduledExecutorService {
 
     public interface ScheduledFutureListener {
         public void notifyScheduledCommand(ScheduledFuture<?> future);
     }
 
-    public class Job implements ScheduledFuture<Void> {
+    public class Job implements ScheduledFuture<Boolean> {
 
         Runnable scheduledCommand;
         Instant scheduledInstant;
@@ -45,7 +46,11 @@ abstract class FakeScheduledExecutorService implements ScheduledExecutorService 
 
         public Job(Runnable command, long delay, TimeUnit unit) {
             scheduledCommand = command;
-            scheduledInstant = clock.instant().plusNanos(unit.toNanos(delay));
+            if (clock != null) {
+                scheduledInstant = clock.instant().plusNanos(unit.toNanos(delay));
+            } else {
+                scheduledInstant = Instant.MAX;
+            }
         }
 
         @Override
@@ -75,13 +80,14 @@ abstract class FakeScheduledExecutorService implements ScheduledExecutorService 
         }
 
         @Override
-        public Void get() throws InterruptedException, ExecutionException {
-            return null;
+        public Boolean get() throws InterruptedException, ExecutionException {
+            return true;
         }
 
         @Override
-        public Void get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            return null;
+        public Boolean get(long timeout, @Nullable TimeUnit unit)
+                throws InterruptedException, ExecutionException, TimeoutException {
+            return true;
         }
 
         public boolean ready(Instant now) {
@@ -122,7 +128,7 @@ abstract class FakeScheduledExecutorService implements ScheduledExecutorService 
     }
 
     @Override
-    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+    public ScheduledFuture<?> schedule(@Nullable Runnable command, long delay, @Nullable TimeUnit unit) {
         Job newJob;
         if (command == null || unit == null) {
             newJob = new Job(() -> {
@@ -136,9 +142,11 @@ abstract class FakeScheduledExecutorService implements ScheduledExecutorService 
     }
 
     void run() {
-        Instant now = clock.instant();
-        List<Job> ready = jobs.stream().filter(job -> job.ready(now)).collect(Collectors.toList());
-        jobs = jobs.stream().filter(job -> job.pending(now)).collect(Collectors.toCollection(ArrayList::new));
-        ready.forEach(Job::run);
+        if (clock != null) {
+            Instant now = clock.instant();
+            List<Job> ready = jobs.stream().filter(job -> job.ready(now)).collect(Collectors.toList());
+            jobs = jobs.stream().filter(job -> job.pending(now)).collect(Collectors.toCollection(ArrayList::new));
+            ready.forEach(Job::run);
+        }
     }
 }

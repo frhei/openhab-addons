@@ -17,6 +17,8 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -34,37 +36,39 @@ import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
+@SuppressWarnings("null")
 public class ThenStage extends Stage<ThenStage> {
 
     @ExpectedScenarioState
     @Mock
-    EqivablueDeviceAdapter deviceAdapter;
+    private @Nullable EqivablueDeviceAdapter deviceAdapter;
 
     @ExpectedScenarioState
     @Mock
-    private DeviceContext context;
+    private @Nullable DeviceContext context;
 
     @ExpectedScenarioState
     @Spy
-    private FakeScheduledExecutorService executorService;
+    private @Nullable FakeScheduledExecutorService executorService;
 
     @ExpectedScenarioState
-    private TestContext testContext;
+    private @Nullable TestContext testContext;
 
     @ExpectedScenarioState
-    private DeviceHandler deviceHandler;
-
-    @ExpectedScenarioState
-    @Mock
-    private CommandHandler commandHandler;
+    private @Nullable DeviceHandler deviceHandler;
 
     @ExpectedScenarioState
     @Mock
-    private ThermostatUpdateListener thingListener;
+    private @Nullable CommandHandler commandHandler;
 
     @ExpectedScenarioState
     @Mock
-    private EncodedReceiveMessage receivedMessage;
+    private @Nullable ThermostatUpdateListener thingListener;
+
+    @ExpectedScenarioState
+    @Mock
+    private @Nullable EncodedReceiveMessage receivedMessage;
 
     public ThenStage no_connection_request_is_issued() {
         verify(deviceAdapter, never()).requestConnection();

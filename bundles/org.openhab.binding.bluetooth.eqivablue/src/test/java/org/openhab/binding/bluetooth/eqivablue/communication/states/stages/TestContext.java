@@ -14,15 +14,18 @@ package org.openhab.binding.bluetooth.eqivablue.communication.states.stages;
 
 import java.util.concurrent.ScheduledFuture;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.eqivablue.communication.states.stages.FakeScheduledExecutorService.ScheduledFutureListener;
 
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 public class TestContext implements ScheduledFutureListener {
-    private ScheduledFuture<?> lastScheduledFuture;
+    private @Nullable ScheduledFuture<?> lastScheduledFuture;
 
-    public ScheduledFuture<?> getLastScheduledFuture() {
+    public @Nullable ScheduledFuture<?> getLastScheduledFuture() {
         return lastScheduledFuture;
     }
 

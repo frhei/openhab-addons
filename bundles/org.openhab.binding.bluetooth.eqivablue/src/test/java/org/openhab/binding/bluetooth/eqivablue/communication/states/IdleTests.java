@@ -27,6 +27,7 @@ import com.tngtech.jgiven.junit5.ScenarioTest;
 /**
  * @author Frank Heister - Initial contribution
  */
+@SuppressWarnings("null")
 @NonNullByDefault
 @ExtendWith(JGivenExtension.class)
 public class IdleTests extends ScenarioTest<GivenStage, WhenStage, ThenStage> {

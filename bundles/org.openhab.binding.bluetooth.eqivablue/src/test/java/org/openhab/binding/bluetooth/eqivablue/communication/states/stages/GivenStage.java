@@ -14,6 +14,10 @@ package org.openhab.binding.bluetooth.eqivablue.communication.states.stages;
 
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.time.Clock;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -33,50 +37,84 @@ import com.tngtech.jgiven.annotation.ProvidedScenarioState;
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
+@SuppressWarnings("null")
 public class GivenStage extends Stage<GivenStage> {
 
     @ProvidedScenarioState
     @Mock
-    EqivablueDeviceAdapter deviceAdapter;
+    private @Nullable EqivablueDeviceAdapter deviceAdapter;
 
     @ProvidedScenarioState
     @Mock
-    private DeviceContext context;
+    private @Nullable DeviceContext context;
 
     @ProvidedScenarioState
     @Spy
-    private FakeScheduledExecutorService executorService;
+    private @Nullable FakeScheduledExecutorService executorService;
 
     @ProvidedScenarioState
     @Spy
-    private FakeClock clock;
+    private @Nullable FakeClock clock;
 
     @ProvidedScenarioState
-    private DeviceHandler deviceHandler;
+    private @Nullable DeviceHandler deviceHandler;
 
     @ProvidedScenarioState
     private TestContext testContext = new TestContext();
 
     @ProvidedScenarioState
     @Mock
-    private CommandHandler commandHandler;
+    private @Nullable CommandHandler commandHandler;
 
     @ProvidedScenarioState
     @Mock
-    private ThermostatUpdateListener thingListener;
+    private @Nullable ThermostatUpdateListener thingListener;
 
     @ProvidedScenarioState
     @Mock
-    private EncodedReceiveMessage receivedMessage;
+    private @Nullable EncodedReceiveMessage receivedMessage;
 
     @BeforeScenario
     public void setUp() {
         long standardTimeoutinMilliSeconds = 12345L;
         initMocks(this);
-        executorService.setClock(clock);
-        Mockito.when(context.getExecutorService()).thenReturn(executorService);
+
+        /*
+         * could look like this compiler would be able handle null conversion from @Nullable to @NonNull nicely
+         *
+         * executorService.setClock(clock);
+         * Mockito.when(context.getExecutorService()).thenReturn(executorService);
+         * service_discovery_timeout_is(standardTimeoutinMilliSeconds);
+         * deviceHandler = new DeviceHandler(deviceAdapter, commandHandler, thingListener, context);
+         */
+
+        if (clock != null) {
+            Clock tmpClock = clock;
+
+            if (executorService != null) {
+                FakeScheduledExecutorService tmpService = executorService;
+                tmpService.setClock(tmpClock);
+                Mockito.when(context.getExecutorService()).thenReturn(tmpService);
+            }
+        }
+
         service_discovery_timeout_is(standardTimeoutinMilliSeconds);
-        deviceHandler = new DeviceHandler(deviceAdapter, commandHandler, thingListener, context);
+
+        if (deviceAdapter != null) {
+            EqivablueDeviceAdapter tmpAdapter = deviceAdapter;
+            if (commandHandler != null) {
+                CommandHandler tmpCommandHandler = commandHandler;
+                if (thingListener != null) {
+                    ThermostatUpdateListener tmpListener = thingListener;
+                    if (context != null) {
+                        DeviceContext tmpContext = context;
+                        deviceHandler = new DeviceHandler(tmpAdapter, tmpCommandHandler, tmpListener, tmpContext);
+                    }
+                }
+            }
+        }
+
     }
 
     @AfterScenario

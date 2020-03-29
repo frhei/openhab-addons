@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.bluetooth.eqivablue.communication.states.stages;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
 class RetryAnswer implements Answer<Boolean> {
 
     private int numberOfRetries = 0;
@@ -28,7 +31,7 @@ class RetryAnswer implements Answer<Boolean> {
     }
 
     @Override
-    public Boolean answer(InvocationOnMock invocation) {
+    public Boolean answer(@Nullable InvocationOnMock invocation) {
         numberOfRetries++;
         if (numberOfRetries <= maximumNumberOfRetries) {
             return false;

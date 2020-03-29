@@ -14,6 +14,8 @@ package org.openhab.binding.bluetooth.eqivablue.communication.states.stages;
 
 import java.time.Duration;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,8 +26,7 @@ import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContex
 import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
 import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.BeforeStage;
@@ -34,43 +35,45 @@ import com.tngtech.jgiven.annotation.ExpectedScenarioState;
 /**
  * @author Frank Heister - Initial contribution
  */
+@NonNullByDefault
+@SuppressWarnings("null")
 public class WhenStage extends Stage<WhenStage> {
 
-    private final Logger logger = LoggerFactory.getLogger(WhenStage.class);
+    @ExpectedScenarioState
+    @Mock
+    private @Nullable EqivablueDeviceAdapter deviceAdapter;
 
     @ExpectedScenarioState
     @Mock
-    EqivablueDeviceAdapter deviceAdapter;
-
-    @ExpectedScenarioState
-    @Mock
-    private DeviceContext context;
+    private @Nullable DeviceContext context;
 
     @ExpectedScenarioState
     @Spy
-    private FakeScheduledExecutorService executorService;
+    private @Nullable FakeScheduledExecutorService executorService;
 
     @ExpectedScenarioState
     @Spy
-    private FakeClock clock;
+    private @Nullable FakeClock clock;
 
     @ExpectedScenarioState
-    private TestContext testContext;
+    // instance will be overridden from given stage
+    // instantiation just for satisfying null check analysis
+    private TestContext testContext = new TestContext();
 
     @ExpectedScenarioState
-    private DeviceHandler deviceHandler;
-
-    @ExpectedScenarioState
-    @Mock
-    private CommandHandler commandHandler;
-
-    @ExpectedScenarioState
-    @Mock
-    private ThermostatUpdateListener thingListener;
+    private @Nullable DeviceHandler deviceHandler;
 
     @ExpectedScenarioState
     @Mock
-    private EncodedReceiveMessage receivedMessage;
+    private @Nullable CommandHandler commandHandler;
+
+    @ExpectedScenarioState
+    @Mock
+    private @Nullable ThermostatUpdateListener thingListener;
+
+    @ExpectedScenarioState
+    @Mock
+    private @Nullable EncodedReceiveMessage receivedMessage;
 
     @BeforeStage
     public void beforeStage() {
@@ -100,6 +103,7 @@ public class WhenStage extends Stage<WhenStage> {
         int arbitraryRssi = -55;
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
+        Mockito.when(commandHandler.peekCommand()).thenReturn(SendMessage.queryStatus());
         deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         executorService.addListener(testContext);
         deviceHandler.notifyConnectionEstablished();
@@ -131,6 +135,7 @@ public class WhenStage extends Stage<WhenStage> {
         int arbitraryRssi = -45;
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
+        Mockito.when(commandHandler.peekCommand()).thenReturn(SendMessage.queryStatus());
         deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         executorService.addListener(testContext);
         deviceHandler.notifyCommandProcessingRequest();
@@ -143,6 +148,7 @@ public class WhenStage extends Stage<WhenStage> {
         Mockito.when(context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()).thenReturn(arbitraryRssi);
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
+        Mockito.when(commandHandler.peekCommand()).thenReturn(SendMessage.queryStatus());
         deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         deviceHandler.notifyCommandProcessingRequest();
         executorService.addListener(testContext);
@@ -157,6 +163,7 @@ public class WhenStage extends Stage<WhenStage> {
         Mockito.when(deviceAdapter.characteristicsAreAvailable()).thenReturn(true);
         Mockito.when(deviceAdapter.requestConnection()).thenReturn(true);
         Mockito.when(deviceAdapter.writeCharacteristic(ArgumentMatchers.any())).thenReturn(true);
+        Mockito.when(commandHandler.peekCommand()).thenReturn(SendMessage.queryStatus());
         deviceHandler.notifyReceivedSignalStrength(arbitraryRssi);
         deviceHandler.notifyCommandProcessingRequest();
         deviceHandler.notifyConnectionEstablished();
@@ -245,7 +252,10 @@ public class WhenStage extends Stage<WhenStage> {
     }
 
     public WhenStage a_response_is_received() {
-        deviceHandler.notifyCharacteristicUpdate(receivedMessage);
+        EncodedReceiveMessage message = receivedMessage;
+        if (message != null) {
+            deviceHandler.notifyCharacteristicUpdate(message);
+        }
         return this;
     }
 
