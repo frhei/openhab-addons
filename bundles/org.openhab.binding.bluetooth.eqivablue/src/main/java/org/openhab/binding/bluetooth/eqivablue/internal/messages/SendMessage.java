@@ -16,24 +16,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
 import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
 public class SendMessage {
-    public enum MessageStatus {
-        CREATED,
-        QUEUED,
-        SENT,
-        SENDING_CONFIRMED,
-        RESPONSE_RECEIVED
-    }
 
-    private MessageStatus status = MessageStatus.CREATED;
+    private final Logger logger = LoggerFactory.getLogger(SendMessage.class);
 
     protected List<Integer> sequence = new ArrayList<Integer>();
     protected static final int COMMAND_SET_DATETIME = 0x03;
@@ -100,33 +96,30 @@ public class SendMessage {
         return sequence.stream().mapToInt(Integer::valueOf).toArray();
     }
 
-    public void setStatus(MessageStatus theStatus) {
-        synchronized (this) {
-            status = theStatus;
-            switch (status) {
-                case SENDING_CONFIRMED:
-                case RESPONSE_RECEIVED:
-                    notify();
-                    break;
-                default:
-                    break;
-            }
+    @Override
+    public boolean equals(@Nullable Object theOtherMessage) {
+        if (theOtherMessage == null) {
+            logger.debug("SendMessage equals: null vs. {}", this.getClass().toString());
+            return false;
+        }
+
+        logger.debug("SendMessage equals: {} vs. {}", theOtherMessage.getClass().toString(),
+                this.getClass().toString());
+
+        if (this == theOtherMessage) {
+            return true;
+        }
+
+        if (theOtherMessage instanceof SendMessage) {
+            return theOtherMessage.getClass().equals(this.getClass());
+        } else {
+            return false;
         }
     }
 
-    public boolean hasStatus(MessageStatus theStatus) {
-        synchronized (this) {
-            return status == theStatus;
-        }
-    }
-
-    public void blockOrTimeOut(long timeout) {
-        try {
-            synchronized (this) {
-                wait(timeout);
-            }
-        } catch (InterruptedException e) {
-        }
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 
 }

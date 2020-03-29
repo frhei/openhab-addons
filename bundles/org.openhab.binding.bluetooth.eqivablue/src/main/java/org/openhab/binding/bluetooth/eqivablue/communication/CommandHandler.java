@@ -16,6 +16,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 
 /**
@@ -26,19 +27,26 @@ public class CommandHandler {
 
     private BlockingQueue<SendMessage> commands = new LinkedBlockingQueue<SendMessage>();
 
-    public boolean areCommandsPending() {
+    private @Nullable SendMessage messageCurrentlyInProcessing = null;
+
+    public synchronized boolean areCommandsPending() {
         return !commands.isEmpty();
     }
 
-    public SendMessage peekCommand() {
-        return commands.peek();
+    public @Nullable synchronized SendMessage peekCommand() {
+        if (messageCurrentlyInProcessing == null) {
+            messageCurrentlyInProcessing = commands.poll();
+        }
+        return messageCurrentlyInProcessing;
     }
 
-    public void popCommand() {
-        commands.poll();
+    public synchronized void popCommand() {
+        messageCurrentlyInProcessing = null;
     }
 
-    public void add(SendMessage theMessage) {
+    public synchronized void add(SendMessage theMessage) {
+        while (commands.remove(theMessage)) {
+        }
         commands.add(theMessage);
     }
 
