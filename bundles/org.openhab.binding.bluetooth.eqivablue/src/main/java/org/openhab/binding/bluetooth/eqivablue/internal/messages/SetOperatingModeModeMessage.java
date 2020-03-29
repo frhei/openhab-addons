@@ -13,7 +13,7 @@
 package org.openhab.binding.bluetooth.eqivablue.internal.messages;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
+import org.openhab.binding.bluetooth.eqivablue.handler.OperatingMode;
 
 /**
  * @author Frank Heister - Initial contribution

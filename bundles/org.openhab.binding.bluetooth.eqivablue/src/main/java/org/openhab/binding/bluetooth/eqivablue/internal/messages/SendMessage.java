@@ -18,8 +18,8 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
-import org.openhab.binding.bluetooth.eqivablue.internal.OperatingMode;
-import org.openhab.binding.bluetooth.eqivablue.internal.PresetTemperature;
+import org.openhab.binding.bluetooth.eqivablue.handler.OperatingMode;
+import org.openhab.binding.bluetooth.eqivablue.handler.PresetTemperature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +25,7 @@ import org.openhab.binding.bluetooth.BluetoothDescriptor;
 import org.openhab.binding.bluetooth.BluetoothDevice;
 import org.openhab.binding.bluetooth.BluetoothDeviceListener;
 import org.openhab.binding.bluetooth.BluetoothService;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.openhab.binding.bluetooth.notification.BluetoothConnectionStatusNotification;
 import org.openhab.binding.bluetooth.notification.BluetoothScanNotification;

@@ -10,24 +10,25 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.EncodedReceiveMessage;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-abstract class OnlineState extends DeviceState {
+public interface EqivablueDeviceListener {
+    void notifyReceivedSignalStrength(int rssi);
 
-    OnlineState(DeviceHandler theHandler) {
-        super(theHandler);
-    }
+    void notifyServicesDiscovered();
 
-    @Override
-    ThingStatus getStatus() {
-        return ThingStatus.ONLINE;
-    }
+    void notifyConnectionEstablished();
 
+    void notifyConnectionClosed();
+
+    void notifyCharacteristicWritten();
+
+    void notifyCharacteristicUpdate(EncodedReceiveMessage message);
 }

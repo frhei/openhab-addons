@@ -10,14 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.EncodedReceiveMessage;
 
 /**
  * @author Frank Heister - Initial contribution

@@ -10,28 +10,26 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-class WaitingForResponseState extends ConnectedState {
+class ConnectingForCommandProcessingState extends OnlineState {
 
     private int numberOfSuccessiveTimeouts = 0;
 
     @Nullable
     private ScheduledFuture<?> timeoutHandler;
 
-    WaitingForResponseState(DeviceHandler theHandler) {
+    ConnectingForCommandProcessingState(DeviceHandler theHandler) {
         super(theHandler);
     }
 
@@ -39,10 +37,13 @@ class WaitingForResponseState extends ConnectedState {
     void onEntry() {
         DeviceContext context = deviceHandler.getContext();
 
-        long timeout = context.getResponseTimeoutInMilliseconds();
-        timeoutHandler = context.getExecutorService().schedule(() -> responseTimedOut(), timeout,
+        long timeout = context.getConnectionRequestTimeoutInMilliseconds();
+        timeoutHandler = context.getExecutorService().schedule(() -> connectionRequestTimedOut(), timeout,
                 TimeUnit.MILLISECONDS);
 
+        new BooleanSupplierRetryStrategy(deviceHandler::requestConnection, () -> {
+            deviceHandler.setState(FailureState.class);
+        }, context.getMaximalNumberOfRetries(), context).execute();
     }
 
     @Override
@@ -54,24 +55,18 @@ class WaitingForResponseState extends ConnectedState {
     }
 
     @Override
-    void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
-        CommandHandler commandHandler = deviceHandler.getCommandHandler();
-        commandHandler.popCommand();
-        deviceHandler.handleMessage(message);
-        if (commandHandler.areCommandsPending()) {
-            deviceHandler.setState(TransmittingMessageState.class);
-        } else {
-            deviceHandler.setState(WaitingForDisconnectState.class);
-        }
+    void notifyConnectionEstablished() {
+        deviceHandler.setState(TransmittingMessageState.class);
     }
 
-    private void responseTimedOut() {
+    private void connectionRequestTimedOut() {
         numberOfSuccessiveTimeouts++;
         if (numberOfSuccessiveTimeouts <= deviceHandler.getContext().getMaximalNumberOfRetries()) {
-            deviceHandler.setState(TransmittingMessageState.class);
+            deviceHandler.setState(ConnectingForCommandProcessingState.class);
         } else {
             numberOfSuccessiveTimeouts = 0;
             deviceHandler.setState(FailureState.class);
         }
     }
+
 }

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -19,15 +19,15 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-abstract class OfflineState extends DeviceState {
+abstract class OnlineState extends DeviceState {
 
-    OfflineState(DeviceHandler theHandler) {
+    OnlineState(DeviceHandler theHandler) {
         super(theHandler);
     }
 
     @Override
     ThingStatus getStatus() {
-        return ThingStatus.OFFLINE;
+        return ThingStatus.ONLINE;
     }
 
 }

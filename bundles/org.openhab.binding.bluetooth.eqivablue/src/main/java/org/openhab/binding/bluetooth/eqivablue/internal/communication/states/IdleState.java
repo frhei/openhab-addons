@@ -10,32 +10,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-class FailureState extends DeviceState {
+class IdleState extends OnlineState {
 
-    FailureState(DeviceHandler theHandler) {
+    IdleState(DeviceHandler theHandler) {
         super(theHandler);
     }
 
     @Override
-    ThingStatus getStatus() {
-        return ThingStatus.INITIALIZING;
+    void notifyCommandProcessingRequest() {
+        deviceHandler.setState(ConnectingForCommandProcessingState.class);
     }
 
-    @Override
-    void notifyConnectionClosed() {
-        if (deviceHandler.getCommandHandler().areCommandsPending()) {
-            deviceHandler.setState(ConnectingForCommandProcessingState.class);
-        } else {
-            deviceHandler.setState(IdleState.class);
-        }
-    }
 }

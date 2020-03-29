@@ -28,6 +28,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mock;
+import org.openhab.binding.bluetooth.eqivablue.handler.OperatingMode;
+import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatUpdateListener;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.EncodedReceiveMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

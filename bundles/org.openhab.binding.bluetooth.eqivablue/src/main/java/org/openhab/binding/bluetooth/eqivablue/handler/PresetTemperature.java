@@ -10,23 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
+package org.openhab.binding.bluetooth.eqivablue.handler;
 
 /**
  * @author Frank Heister - Initial contribution
  */
-@NonNullByDefault
-class IdleState extends OnlineState {
-
-    IdleState(DeviceHandler theHandler) {
-        super(theHandler);
-    }
-
-    @Override
-    void notifyCommandProcessingRequest() {
-        deviceHandler.setState(ConnectingForCommandProcessingState.class);
-    }
-
+public enum PresetTemperature {
+    Off,
+    Eco,
+    Comfort,
+    On,
+    None
 }

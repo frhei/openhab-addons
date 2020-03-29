@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -18,11 +18,11 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
-import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
-import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceListener;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
-import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
+import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatUpdateListener;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.CommandHandler;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.EqivablueDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.EqivablueDeviceListener;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.EncodedReceiveMessage;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -10,15 +10,23 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.internal;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * @author Frank Heister - Initial contribution
  */
-public enum PresetTemperature {
-    Off,
-    Eco,
-    Comfort,
-    On,
-    None
+@NonNullByDefault
+class WaitingForDisconnectState extends ConnectedState {
+
+    WaitingForDisconnectState(DeviceHandler theHandler) {
+        super(theHandler);
+    }
+
+    @Override
+    void onEntry() {
+        deviceHandler.requestDisconnect();
+    }
+
 }

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.internal;
+package org.openhab.binding.bluetooth.eqivablue.internal.messages;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.binding.bluetooth.eqivablue.handler.OperatingMode;
+import org.openhab.binding.bluetooth.eqivablue.handler.ScheduleEntry;
+import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

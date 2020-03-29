@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  */
-package org.openhab.binding.bluetooth.eqivablue.communication.states;
+package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -18,15 +18,22 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
-class WaitingForDisconnectState extends ConnectedState {
+class NoSignalState extends OfflineState {
 
-    WaitingForDisconnectState(DeviceHandler theHandler) {
+    NoSignalState(DeviceHandler theHandler) {
         super(theHandler);
     }
 
     @Override
-    void onEntry() {
-        deviceHandler.requestDisconnect();
+    void indicateSignalLoss() {
     }
 
+    @Override
+    void indicateReceivedSignalStrength(int rssi) {
+        if (deviceHandler.characteristicsAreAvailable()) {
+            deviceHandler.setState(IdleState.class);
+        } else {
+            deviceHandler.setState(ConnectingForServiceDiscoveryState.class);
+        }
+    }
 }

@@ -22,12 +22,12 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.openhab.binding.bluetooth.eqivablue.communication.CommandHandler;
-import org.openhab.binding.bluetooth.eqivablue.communication.EqivablueDeviceAdapter;
-import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceContext;
-import org.openhab.binding.bluetooth.eqivablue.communication.states.DeviceHandler;
-import org.openhab.binding.bluetooth.eqivablue.internal.EncodedReceiveMessage;
-import org.openhab.binding.bluetooth.eqivablue.internal.ThermostatUpdateListener;
+import org.openhab.binding.bluetooth.eqivablue.handler.ThermostatUpdateListener;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.CommandHandler;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.EqivablueDeviceAdapter;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.states.DeviceContext;
+import org.openhab.binding.bluetooth.eqivablue.internal.communication.states.DeviceHandler;
+import org.openhab.binding.bluetooth.eqivablue.internal.messages.EncodedReceiveMessage;
 
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.AfterScenario;
