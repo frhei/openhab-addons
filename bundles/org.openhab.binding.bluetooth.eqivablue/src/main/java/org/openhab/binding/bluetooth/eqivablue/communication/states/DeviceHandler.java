@@ -73,7 +73,7 @@ public class DeviceHandler implements EqivablueDeviceListener {
         deviceAdapter.removeListener(this);
     }
 
-    public void setState(Type type) {
+    public synchronized void setState(Type type) {
         logger.debug("{}: {} -> {}", deviceAdapter.getAddress(), currentState.getClass().getTypeName(),
                 type.getTypeName());
         ThingStatus oldStatus, newStatus;
@@ -96,7 +96,7 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     @Override
-    public void notifyReceivedSignalStrength(int rssi) {
+    public synchronized void notifyReceivedSignalStrength(int rssi) {
         logger.debug("{}: RSSI {}", deviceAdapter.getAddress(), rssi);
         if (rssi >= context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()) {
             currentState.indicateReceivedSignalStrength(rssi);
@@ -106,13 +106,13 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     @Override
-    public void notifyConnectionEstablished() {
+    public synchronized void notifyConnectionEstablished() {
         logger.debug("{}: notifyConnectionEstablished", deviceAdapter.getAddress());
         currentState.notifyConnectionEstablished();
     }
 
     @Override
-    public void notifyConnectionClosed() {
+    public synchronized void notifyConnectionClosed() {
         logger.debug("{}: notifyConnectionClosed", deviceAdapter.getAddress());
         currentState.notifyConnectionClosed();
     }
@@ -141,7 +141,7 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     @Override
-    public void notifyServicesDiscovered() {
+    public synchronized void notifyServicesDiscovered() {
         logger.debug("{}: notifyServicesDiscovered", deviceAdapter.getAddress());
         currentState.notifyServicesDiscovered();
     }
@@ -156,7 +156,7 @@ public class DeviceHandler implements EqivablueDeviceListener {
         return deviceAdapter.characteristicsAreAvailable();
     }
 
-    public void notifyCommandProcessingRequest() {
+    public synchronized void notifyCommandProcessingRequest() {
         logger.debug("{}: notifyCommandProcessingRequest", deviceAdapter.getAddress());
         currentState.notifyCommandProcessingRequest();
     }
@@ -167,13 +167,13 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     @Override
-    public void notifyCharacteristicWritten() {
+    public synchronized void notifyCharacteristicWritten() {
         logger.debug("{}: notifyCharacteristicWritten", deviceAdapter.getAddress());
         currentState.notifyMessageTransmitted();
     }
 
     @Override
-    public void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
+    public synchronized void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
         logger.debug("{}: notifyCharacteristicUpdate {}", deviceAdapter.getAddress(), message);
         currentState.notifyCharacteristicUpdate(message);
     }

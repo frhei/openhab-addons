@@ -29,4 +29,13 @@ class FailureState extends DeviceState {
     ThingStatus getStatus() {
         return ThingStatus.INITIALIZING;
     }
+
+    @Override
+    void notifyConnectionClosed() {
+        if (deviceHandler.getCommandHandler().areCommandsPending()) {
+            deviceHandler.setState(ConnectingForCommandProcessingState.class);
+        } else {
+            deviceHandler.setState(IdleState.class);
+        }
+    }
 }

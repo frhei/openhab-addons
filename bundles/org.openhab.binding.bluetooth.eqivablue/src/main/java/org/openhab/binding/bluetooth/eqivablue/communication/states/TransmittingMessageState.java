@@ -18,12 +18,16 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.bluetooth.eqivablue.internal.messages.SendMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
 class TransmittingMessageState extends ConnectedState {
+
+    private final Logger logger = LoggerFactory.getLogger(TransmittingMessageState.class);
 
     private int numberOfSuccessiveTimeouts = 0;
 
@@ -39,13 +43,19 @@ class TransmittingMessageState extends ConnectedState {
         DeviceContext context = deviceHandler.getContext();
         SendMessage message = deviceHandler.getCommandHandler().peekCommand();
 
-        long timeout = context.getTransmissionRequestTimeoutInMilliseconds();
-        timeoutHandler = context.getExecutorService().schedule(() -> transmissionRequestTimedOut(), timeout,
-                TimeUnit.MILLISECONDS);
+        if (message != null) {
+            long timeout = context.getTransmissionRequestTimeoutInMilliseconds();
+            timeoutHandler = context.getExecutorService().schedule(() -> transmissionRequestTimedOut(), timeout,
+                    TimeUnit.MILLISECONDS);
 
-        new BooleanFunctionRetryStrategy<SendMessage>(deviceHandler::transmitMessage, () -> {
+            new BooleanFunctionRetryStrategy<SendMessage>(deviceHandler::transmitMessage, () -> {
+                deviceHandler.setState(FailureState.class);
+            }, context.getMaximalNumberOfRetries(), context).execute(message);
+        } else {
+            logger.error("Failed to retrieve a message from command handler in TransmittingMessageState!");
             deviceHandler.setState(FailureState.class);
-        }, context.getMaximalNumberOfRetries(), context).execute(message);
+        }
+
     }
 
     @Override
