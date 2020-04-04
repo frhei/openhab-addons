@@ -40,22 +40,23 @@ class TransmittingMessageState extends ConnectedState {
 
     @Override
     void onEntry() {
-        DeviceContext context = deviceHandler.getContext();
-        SendMessage message = deviceHandler.getCommandHandler().peekCommand();
+        if (timeoutHandler == null) {
+            DeviceContext context = deviceHandler.getContext();
+            SendMessage message = deviceHandler.getCommandHandler().peekCommand();
 
-        if (message != null) {
-            long timeout = context.getTransmissionRequestTimeoutInMilliseconds();
-            timeoutHandler = context.getExecutorService().schedule(() -> transmissionRequestTimedOut(), timeout,
-                    TimeUnit.MILLISECONDS);
+            if (message != null) {
+                long timeout = context.getTransmissionRequestTimeoutInMilliseconds();
+                timeoutHandler = context.getExecutorService().schedule(() -> transmissionRequestTimedOut(), timeout,
+                        TimeUnit.MILLISECONDS);
 
-            new BooleanFunctionRetryStrategy<SendMessage>(deviceHandler::transmitMessage, () -> {
+                new BooleanFunctionRetryStrategy<SendMessage>(deviceHandler::transmitMessage, () -> {
+                    deviceHandler.setState(FailureState.class);
+                }, context.getMaximalNumberOfRetries(), context).execute(message);
+            } else {
+                logger.error("Failed to retrieve a message from command handler in TransmittingMessageState!");
                 deviceHandler.setState(FailureState.class);
-            }, context.getMaximalNumberOfRetries(), context).execute(message);
-        } else {
-            logger.error("Failed to retrieve a message from command handler in TransmittingMessageState!");
-            deviceHandler.setState(FailureState.class);
+            }
         }
-
     }
 
     @Override
@@ -64,6 +65,7 @@ class TransmittingMessageState extends ConnectedState {
         if (localTimeoutHandler != null) {
             localTimeoutHandler.cancel(true);
         }
+        timeoutHandler = null;
     }
 
     @Override

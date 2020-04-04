@@ -149,4 +149,11 @@ abstract class FakeScheduledExecutorService implements ScheduledExecutorService 
             ready.forEach(Job::run);
         }
     }
+
+    @Override
+    public void execute(@Nullable Runnable command) {
+        if (command != null) {
+            command.run();
+        }
+    }
 }

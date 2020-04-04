@@ -36,16 +36,18 @@ class DiscoveringServicesState extends OfflineState {
 
     @Override
     void onEntry() {
-        DeviceContext context = deviceHandler.getContext();
-        long timeout = context.getServiceDiscoveryTimeoutInMilliseconds();
+        if (timeoutHandler == null) {
 
-        timeoutHandler = context.getExecutorService().schedule(() -> serviceDiscoveryTimedOut(), timeout,
-                TimeUnit.MILLISECONDS);
+            DeviceContext context = deviceHandler.getContext();
+            long timeout = context.getServiceDiscoveryTimeoutInMilliseconds();
 
-        new BooleanSupplierRetryStrategy(deviceHandler::requestDiscoverServices, () -> {
-            deviceHandler.setState(FailureState.class);
-        }, context.getMaximalNumberOfRetries(), context).execute();
+            timeoutHandler = context.getExecutorService().schedule(() -> serviceDiscoveryTimedOut(), timeout,
+                    TimeUnit.MILLISECONDS);
 
+            new BooleanSupplierRetryStrategy(deviceHandler::requestDiscoverServices, () -> {
+                deviceHandler.setState(FailureState.class);
+            }, context.getMaximalNumberOfRetries(), context).execute();
+        }
     }
 
     @Override
@@ -54,6 +56,7 @@ class DiscoveringServicesState extends OfflineState {
         if (localTimeoutHandler != null) {
             localTimeoutHandler.cancel(true);
         }
+        timeoutHandler = null;
     }
 
     @Override

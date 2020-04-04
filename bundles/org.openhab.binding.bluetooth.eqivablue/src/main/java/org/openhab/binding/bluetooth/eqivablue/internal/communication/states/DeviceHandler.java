@@ -74,8 +74,8 @@ public class DeviceHandler implements EqivablueDeviceListener {
     }
 
     public synchronized void setState(Type type) {
-        logger.debug("{}: {} -> {}", deviceAdapter.getAddress(), currentState.getClass().getTypeName(),
-                type.getTypeName());
+        logger.debug("{}: {} -> {}", deviceAdapter.getAddress(), currentState.getClass().getSimpleName(),
+                states.get(type).getClass().getSimpleName());
         ThingStatus oldStatus, newStatus;
         oldStatus = currentState.getStatus();
         currentState.onExit();
@@ -93,28 +93,6 @@ public class DeviceHandler implements EqivablueDeviceListener {
 
     public ThingStatus getStatus() {
         return currentState.getStatus();
-    }
-
-    @Override
-    public synchronized void notifyReceivedSignalStrength(int rssi) {
-        logger.debug("{}: RSSI {}", deviceAdapter.getAddress(), rssi);
-        if (rssi >= context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()) {
-            currentState.indicateReceivedSignalStrength(rssi);
-        } else {
-            currentState.indicateSignalLoss();
-        }
-    }
-
-    @Override
-    public synchronized void notifyConnectionEstablished() {
-        logger.debug("{}: notifyConnectionEstablished", deviceAdapter.getAddress());
-        currentState.notifyConnectionEstablished();
-    }
-
-    @Override
-    public synchronized void notifyConnectionClosed() {
-        logger.debug("{}: notifyConnectionClosed", deviceAdapter.getAddress());
-        currentState.notifyConnectionClosed();
     }
 
     public boolean requestConnection() {
@@ -140,12 +118,6 @@ public class DeviceHandler implements EqivablueDeviceListener {
         return deviceAdapter.requestDisconnect();
     }
 
-    @Override
-    public synchronized void notifyServicesDiscovered() {
-        logger.debug("{}: notifyServicesDiscovered", deviceAdapter.getAddress());
-        currentState.notifyServicesDiscovered();
-    }
-
     public boolean getCharacteristics() {
         logger.debug("{}: getCharacteristics", deviceAdapter.getAddress());
         return deviceAdapter.getCharacteristics();
@@ -156,30 +128,72 @@ public class DeviceHandler implements EqivablueDeviceListener {
         return deviceAdapter.characteristicsAreAvailable();
     }
 
-    public synchronized void notifyCommandProcessingRequest() {
-        logger.debug("{}: notifyCommandProcessingRequest", deviceAdapter.getAddress());
-        currentState.notifyCommandProcessingRequest();
-    }
-
     public boolean transmitMessage(SendMessage message) {
         logger.debug("{}: transmitMessage {}", deviceAdapter.getAddress(), message);
         return deviceAdapter.writeCharacteristic(message);
     }
 
+    public void handleMessage(EncodedReceiveMessage message) {
+        logger.debug("{}: handleMessage {}", deviceAdapter.getAddress(), message);
+        message.decodeAndNotify(updateListener);
+    }
+
+    public synchronized void notifyCommandProcessingRequest() {
+        logger.debug("{}: notifyCommandProcessingRequest", deviceAdapter.getAddress());
+        context.getExecutorService().execute(() -> {
+            currentState.notifyCommandProcessingRequest();
+        });
+    }
+
     @Override
-    public synchronized void notifyCharacteristicWritten() {
-        logger.debug("{}: notifyCharacteristicWritten", deviceAdapter.getAddress());
-        currentState.notifyMessageTransmitted();
+    public synchronized void notifyReceivedSignalStrength(int rssi) {
+        logger.debug("{}: RSSI {}", deviceAdapter.getAddress(), rssi);
+        context.getExecutorService().execute(() -> {
+            if (rssi >= context.getMinimalSignalStrengthForAcceptingCommunicationToDevice()) {
+                currentState.indicateReceivedSignalStrength(rssi);
+            } else {
+                currentState.indicateSignalLoss();
+            }
+        });
+    }
+
+    @Override
+    public synchronized void notifyServicesDiscovered() {
+        logger.debug("{}: notifyServicesDiscovered", deviceAdapter.getAddress());
+        context.getExecutorService().execute(() -> {
+            currentState.notifyServicesDiscovered();
+        });
+    }
+
+    @Override
+    public synchronized void notifyConnectionEstablished() {
+        logger.debug("{}: notifyConnectionEstablished", deviceAdapter.getAddress());
+        context.getExecutorService().execute(() -> {
+            currentState.notifyConnectionEstablished();
+        });
+    }
+
+    @Override
+    public synchronized void notifyConnectionClosed() {
+        logger.debug("{}: notifyConnectionClosed", deviceAdapter.getAddress());
+        context.getExecutorService().execute(() -> {
+            currentState.notifyConnectionClosed();
+        });
     }
 
     @Override
     public synchronized void notifyCharacteristicUpdate(EncodedReceiveMessage message) {
         logger.debug("{}: notifyCharacteristicUpdate {}", deviceAdapter.getAddress(), message);
-        currentState.notifyCharacteristicUpdate(message);
+        context.getExecutorService().execute(() -> {
+            currentState.notifyCharacteristicUpdate(message);
+        });
     }
 
-    public void handleMessage(EncodedReceiveMessage message) {
-        logger.debug("{}: handleMessage {}", deviceAdapter.getAddress(), message);
-        message.decodeAndNotify(updateListener);
+    @Override
+    public synchronized void notifyCharacteristicWritten() {
+        logger.debug("{}: notifyCharacteristicWritten", deviceAdapter.getAddress());
+        context.getExecutorService().execute(() -> {
+            currentState.notifyMessageTransmitted();
+        });
     }
 }

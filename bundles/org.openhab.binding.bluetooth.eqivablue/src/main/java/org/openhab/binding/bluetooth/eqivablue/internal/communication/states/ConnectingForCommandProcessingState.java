@@ -17,12 +17,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
  */
 @NonNullByDefault
 class ConnectingForCommandProcessingState extends OnlineState {
+
+    private final Logger logger = LoggerFactory.getLogger(ConnectingForCommandProcessingState.class);
 
     private int numberOfSuccessiveTimeouts = 0;
 
@@ -35,15 +39,17 @@ class ConnectingForCommandProcessingState extends OnlineState {
 
     @Override
     void onEntry() {
-        DeviceContext context = deviceHandler.getContext();
+        if (timeoutHandler == null) {
+            DeviceContext context = deviceHandler.getContext();
 
-        long timeout = context.getConnectionRequestTimeoutInMilliseconds();
-        timeoutHandler = context.getExecutorService().schedule(() -> connectionRequestTimedOut(), timeout,
-                TimeUnit.MILLISECONDS);
+            long timeout = context.getConnectionRequestTimeoutInMilliseconds();
+            timeoutHandler = context.getExecutorService().schedule(() -> connectionRequestTimedOut(), timeout,
+                    TimeUnit.MILLISECONDS);
 
-        new BooleanSupplierRetryStrategy(deviceHandler::requestConnection, () -> {
-            deviceHandler.setState(FailureState.class);
-        }, context.getMaximalNumberOfRetries(), context).execute();
+            new BooleanSupplierRetryStrategy(deviceHandler::requestConnection, () -> {
+                deviceHandler.setState(FailureState.class);
+            }, context.getMaximalNumberOfRetries(), context).execute();
+        }
     }
 
     @Override
@@ -52,10 +58,12 @@ class ConnectingForCommandProcessingState extends OnlineState {
         if (localTimeoutHandler != null) {
             localTimeoutHandler.cancel(true);
         }
+        timeoutHandler = null;
     }
 
     @Override
     void notifyConnectionEstablished() {
+        logger.debug("notifyConnectionEstablished");
         deviceHandler.setState(TransmittingMessageState.class);
     }
 

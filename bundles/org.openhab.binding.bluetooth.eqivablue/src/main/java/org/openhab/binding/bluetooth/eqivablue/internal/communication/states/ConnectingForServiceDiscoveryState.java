@@ -35,15 +35,17 @@ class ConnectingForServiceDiscoveryState extends OfflineState {
 
     @Override
     void onEntry() {
-        DeviceContext context = deviceHandler.getContext();
+        if (timeoutHandler == null) {
+            DeviceContext context = deviceHandler.getContext();
 
-        long timeout = context.getConnectionRequestTimeoutInMilliseconds();
-        timeoutHandler = context.getExecutorService().schedule(() -> connectionRequestTimedOut(), timeout,
-                TimeUnit.MILLISECONDS);
+            long timeout = context.getConnectionRequestTimeoutInMilliseconds();
+            timeoutHandler = context.getExecutorService().schedule(() -> connectionRequestTimedOut(), timeout,
+                    TimeUnit.MILLISECONDS);
 
-        new BooleanSupplierRetryStrategy(deviceHandler::requestConnection, () -> {
-            deviceHandler.setState(FailureState.class);
-        }, context.getMaximalNumberOfRetries(), context).execute();
+            new BooleanSupplierRetryStrategy(deviceHandler::requestConnection, () -> {
+                deviceHandler.setState(FailureState.class);
+            }, context.getMaximalNumberOfRetries(), context).execute();
+        }
     }
 
     @Override
@@ -52,6 +54,7 @@ class ConnectingForServiceDiscoveryState extends OfflineState {
         if (localTimeoutHandler != null) {
             localTimeoutHandler.cancel(true);
         }
+        timeoutHandler = null;
     }
 
     @Override
