@@ -99,12 +99,8 @@ public class SendMessage {
     @Override
     public boolean equals(@Nullable Object theOtherMessage) {
         if (theOtherMessage == null) {
-            logger.debug("SendMessage equals: null vs. {}", this.getClass().toString());
             return false;
         }
-
-        logger.debug("SendMessage equals: {} vs. {}", theOtherMessage.getClass().toString(),
-                this.getClass().toString());
 
         if (this == theOtherMessage) {
             return true;

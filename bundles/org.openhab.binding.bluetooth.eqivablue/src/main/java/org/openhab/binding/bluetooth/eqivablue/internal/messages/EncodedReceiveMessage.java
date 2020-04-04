@@ -172,4 +172,18 @@ public class EncodedReceiveMessage {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i : encodedMessage) {
+            sb.append(Integer.toHexString(i));
+            sb.append(", ");
+        }
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        sb.append("]");
+        return sb.toString();
+    }
+
 }

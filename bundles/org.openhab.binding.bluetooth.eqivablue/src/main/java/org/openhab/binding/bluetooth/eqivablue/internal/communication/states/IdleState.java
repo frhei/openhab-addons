@@ -13,6 +13,8 @@
 package org.openhab.binding.bluetooth.eqivablue.internal.communication.states;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Frank Heister - Initial contribution
@@ -20,12 +22,15 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 class IdleState extends OnlineState {
 
+    private final Logger logger = LoggerFactory.getLogger(IdleState.class);
+
     IdleState(DeviceHandler theHandler) {
         super(theHandler);
     }
 
     @Override
     void notifyCommandProcessingRequest() {
+        logger.debug("notifyCommandProcessingRequest");
         deviceHandler.setState(ConnectingForCommandProcessingState.class);
     }
 
