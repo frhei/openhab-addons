@@ -26,7 +26,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.openhab.binding.bluetooth.BluetoothBindingConstants;
-import org.openhab.binding.bluetooth.BluetoothDevice;
+import org.openhab.binding.bluetooth.discovery.BluetoothDiscoveryDevice;
 import org.openhab.binding.bluetooth.discovery.BluetoothDiscoveryParticipant;
 import org.openhab.binding.bluetooth.eqivablue.EqivaBlueBindingConstants;
 import org.osgi.service.component.annotations.Component;
@@ -46,7 +46,7 @@ public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticip
     }
 
     @Override
-    public @Nullable ThingUID getThingUID(BluetoothDevice device) {
+    public @Nullable ThingUID getThingUID(BluetoothDiscoveryDevice device) {
         if ((EqivaBlueBindingConstants.EQIVA_BLUE_NAME.equals(device.getName()))
                 || (device.supportsService(UUID_EQIVA_BLUE_SERVICE))) {
             return new ThingUID(EqivaBlueBindingConstants.THING_TYPE_EQIVA_BLUE, device.getAdapter().getUID(),
@@ -57,7 +57,7 @@ public class EqivaBlueDiscoveryParticipant implements BluetoothDiscoveryParticip
     }
 
     @Override
-    public @Nullable DiscoveryResult createResult(BluetoothDevice device) {
+    public @Nullable DiscoveryResult createResult(BluetoothDiscoveryDevice device) {
         ThingUID thingUID = getThingUID(device);
 
         if (thingUID != null) {
